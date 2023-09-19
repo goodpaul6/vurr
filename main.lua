@@ -34,5 +34,5 @@ function lovr.draw(pass)
     pass:box(x, y, z, width, height, depth, 0, 0, 1, 0, 'line')
 
     pass:setMaterial(bunnyTexture)
-    pass:draw(bunnyModel, 0, 1, 0, 1)
+    pass:draw(bunnyModel, 0, 1, 0, 1, lovr.timer.getTime(), 0, 1, 0)
 end
