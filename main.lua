@@ -9,21 +9,10 @@ function lovr.load()
     world:setAngularDamping(.005)
 
     ground = world:newBoxCollider(0, 0, 0, 50, .5, 50)
-
     ground:setKinematic(true)
 
-    balls = {}
-
-    for i = 1, 50 do
-        table.insert(balls, {
-            collider = world:newSphereCollider(
-                vec3(lovr.math.random() * 50 - 25,
-                     lovr.math.random() * 10 + 10,
-                     lovr.math.random() * 10 - 5),
-                .02
-            )
-        })
-    end
+    bunnyModel = lovr.graphics.newModel('assets/bunny.obj')
+    bunnyTexture = lovr.graphics.newTexture('assets/bunny_base.png')
 
     lovr.timer.step()
 end
@@ -44,12 +33,6 @@ function lovr.draw(pass)
 
     pass:box(x, y, z, width, height, depth, 0, 0, 1, 0, 'line')
 
-    for _, ball in ipairs(balls) do
-        x, y, z = ball.collider:getPosition()
-
-        pass:sphere(
-            x, y, z, 
-            ball.collider:getShapes()[1]:getRadius()
-        )
-    end
+    pass:setMaterial(bunnyTexture)
+    pass:draw(bunnyModel, 0, 1, 0, 1)
 end
