@@ -35,7 +35,7 @@ end
 function lovr.draw(pass)
     pass:setShader(nil)
 
-    pass:text('hello world', 0, 1.7, -3, .5)
+    pass:text('hello world', vec3(0, 1.7, -3))
 
     light.apply(pass)
 
