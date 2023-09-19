@@ -17,9 +17,9 @@ function lovr.load()
     for i = 1, 50 do
         table.insert(balls, {
             collider = world:newSphereCollider(
-                vec3(lovr.math.random(-5.0, 5.0), 
-                     lovr.math.random(10.0, 20.0), 
-                     lovr.math.random(-5, 5)),
+                vec3(lovr.math.random() * 50 - 25,
+                     lovr.math.random() * 10 + 10,
+                     lovr.math.random() * 10 - 5),
                 .02
             )
         })
