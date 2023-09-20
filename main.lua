@@ -3,7 +3,10 @@ motion = require "motion"
 
 WHITE_COLOR = {1, 1, 1, 1}
 AMBIENCE_COLOR = {0.357, 0.518, 0.718, 1.0}
-GRASS_COLOR = {0.365, 0.663, 0.247, 1}
+GRASS_COLORS = {
+    {0.365, 0.663, 0.247, 1},
+    {0.596, 0.780, 0.325, 1}
+}
 GROUND_COLOR = {0.231, 0.396, 0.243, 1}
 
 function lovr.load()
@@ -86,11 +89,11 @@ function lovr.draw(pass)
         end]]
 
         for i = 1, 20 do
-            pass:setColor(GRASS_COLOR)
+            pass:setColor(GRASS_COLORS[lovr.math.random(2)])
 
             pass:draw(grassBladeModel, 
-                      x + lovr.math.random() * 3 - 1.5, 0.5, y + lovr.math.random() * 3 - 1.5,
-                      lovr.math.random() * 0.5 + 0.2,
+                      x + lovr.math.random() * 3 - 1.5, 0.25, y + lovr.math.random() * 3 - 1.5,
+                      lovr.math.random() * 0.5 + 0.1,
                       math.sin(lovr.timer.getTime() * 4 + lovr.math.random() * 1.6) * 0.1,
                       1, 0, 0)
         end
