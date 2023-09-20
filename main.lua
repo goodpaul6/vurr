@@ -20,6 +20,9 @@ function lovr.load()
 
     grassBladeModel = lovr.graphics.newModel('assets/grass_blade.obj')
 
+    doorModel = lovr.graphics.newModel('assets/door.obj')
+    doorTexture = lovr.graphics.newTexture('assets/door.png')
+
     lovr.timer.step()
 end
 
@@ -97,7 +100,10 @@ function lovr.draw(pass)
  
     pass:setColor(WHITE_COLOR)
     pass:setMaterial(bunnyTexture)
-    pass:draw(bunnyModel, 0, 1, 0, 1, lovr.timer.getTime(), 0, 1, 0)
+    pass:draw(bunnyModel, 1, 1, 0, 1, lovr.timer.getTime(), 0, 1, 0)
+
+    pass:setMaterial(doorTexture)
+    pass:draw(doorModel, 0, 1, 0, 1, 0, 0, 1, 0)
 
     pass:setShader(nil)
     motion.drawTeleport(pass)
