@@ -3,8 +3,6 @@ motion = require "motion"
 
 vec3 = lovr.math.vec3
 
-lovr.graphics.setBackgroundColor(0.1, 0.1, 0.1)
-
 function lovr.load()
     world = lovr.physics.newWorld()
 
@@ -17,6 +15,8 @@ function lovr.load()
     bunnyModel = lovr.graphics.newModel('assets/bunny.obj')
     bunnyTexture = lovr.graphics.newTexture('assets/bunny_base.png')
 
+    grassBladeModel = lovr.graphics.newModel('assets/grass_blade.obj')
+
     lovr.timer.step()
 end
 
@@ -26,11 +26,17 @@ function lovr.update(dt)
 end
 
 function lovr.draw(pass)
+    lovr.graphics.setBackgroundColor('0x79c6d4')
+    pass:setShader(nil)
+
+    pass:setColor(1, 1, 1, 1)
+    pass:text('hello world', vec3(0, 1.7, -3))
+
     ----- teleportation -----
     pass:transform(mat4(motion.pose):invert())
     -- Render hands
     pass:setColor(1,1,1)
-    local radius = 0.04
+    local radius = 0.01
     for _, hand in ipairs(lovr.headset.getHands()) do
         -- Whenever pose of hand or head is used, need to account for VR movement
         local poseRW = mat4(lovr.headset.getPose(hand))
@@ -40,6 +46,10 @@ function lovr.draw(pass)
     end
     -- Some scenery
     lovr.math.setRandomSeed(0)
+
+    light.apply(pass, {
+        ambience = {0.357, 0.518, 0.718, 1.0}
+    })
 
     local goldenRatio = (math.sqrt(5) + 1) / 2
     local goldenAngle = (2 - goldenRatio) * (2 * math.pi)
@@ -55,24 +65,21 @@ function lovr.draw(pass)
             local shade = 0.1 + 0.3 * lovr.math.random()
             pass:setColor(shade, shade, shade)
         end
-        pass:cylinder(x, -0.01, y,  1,0.02, math.pi / 2, 1,0,0)
+
+        pass:draw(grassBladeModel, x, -0.01, y)
+        -- pass:cylinder(x, -0.01, y,  1,0.02, math.pi / 2, 1,0,0)
     end
-
-    motion.drawTeleport(pass)
-    
-    pass:setColor(1, 1, 1, 1)
-
-    pass:setShader(nil)
-
-    pass:text('hello world', vec3(0, 1.7, -3))
-
-    light.apply(pass)
-
+ 
     x, y, z = ground:getPosition()
     width, height, depth = ground:getShapes()[1]:getDimensions()
 
-    pass:box(x, y, z, width, height, depth, 0, 0, 1, 0, 'line')
+    pass:setColor(0.365, 0.663, 0.247, 1)
+    pass:box(x, y, z, width, height, depth, 0, 0, 1, 0)
 
+    pass:setColor(1, 1, 1, 1)
     pass:setMaterial(bunnyTexture)
     pass:draw(bunnyModel, 0, 1, 0, 1, lovr.timer.getTime(), 0, 1, 0)
+
+    pass:setShader(nil)
+    motion.drawTeleport(pass)
 end
