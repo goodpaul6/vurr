@@ -29,7 +29,8 @@ dirLight.shadow.camera.near = 0.5;
 dirLight.shadow.camera.far = 500;
 
 scene.add(dirLight);
-scene.add(new THREE.AmbientLight(0xfcebc3, 0.1));
+
+scene.add(new THREE.HemisphereLight(0xfcebc3, 0x3b653e));
 scene.add(new THREE.AxesHelper(5));
 
 const loader = new GLTFLoader();
