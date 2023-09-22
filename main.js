@@ -1,58 +1,20 @@
+import {
+  scene,
+  camera,
+  raycaster,
+  renderer,
+  baseReferenceSpace,
+  gltfLoader,
+  controllerModelFactory,
+} from "./setup.js";
+
 import * as THREE from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader";
-import { OrbitControls } from "three/addons/controls/OrbitControls";
-import { VRButton } from "three/addons/webxr/VRButton";
-import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory";
-
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-const raycaster = new THREE.Raycaster();
-
-let baseReferenceSpace = null;
-
-const renderer = new THREE.WebGLRenderer({ antialias: true });
-
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
-
-renderer.xr.addEventListener("sessionstart", function () {
-  baseReferenceSpace = renderer.xr.getReferenceSpace();
-});
-
-renderer.xr.enabled = true;
-
-document.body.appendChild(renderer.domElement);
-document.body.appendChild(VRButton.createButton(renderer));
-
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
-scene.background = new THREE.Color(0x79c6d4);
-
-const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-
-dirLight.position.set(1, 1, 0);
-dirLight.castShadow = true;
-dirLight.shadow.mapSize.width = 1024;
-dirLight.shadow.mapSize.height = 1024;
-dirLight.shadow.camera.near = 0.5;
-dirLight.shadow.camera.far = 500;
-
-scene.add(dirLight);
-
-scene.add(new THREE.HemisphereLight(0xfcebc3, 0x3b653e));
-
-const loader = new GLTFLoader();
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let bunny = null;
 let ground = null;
 
-loader.load("public/bunny.glb", function (gltf) {
+gltfLoader.load("public/bunny.glb", function (gltf) {
   bunny = gltf.scene.children[0];
   bunny.castShadow = true;
 
@@ -64,7 +26,7 @@ loader.load("public/bunny.glb", function (gltf) {
   }
 });
 
-loader.load("public/ground.glb", function (gltf) {
+gltfLoader.load("public/ground.glb", function (gltf) {
   ground = gltf.scene.children[0];
   ground.receiveShadow = true;
   scene.add(ground);
@@ -112,13 +74,19 @@ function onSelectEnd() {
   const rot = lastRotation ?? new THREE.Quaternion();
   lastRotation = rot;
 
+  // HACK(Apaar): Basically, the MDN documentation lies. If we supply a rotation
+  // along with a translation, it will actually translate first and then rotate,
+  // resulting in a rotation around the origin from the translated position.
+  //
+  // Instead, I just rotate first and then translate as a separate step. Not so bad.
   const rotTransform = new XRRigidTransform(undefined, rot);
-
-  const rotBase = baseReferenceSpace.getOffsetReferenceSpace(rotTransform);
-
   const moveTransform = new XRRigidTransform(posn, undefined);
 
-  renderer.xr.setReferenceSpace(rotBase.getOffsetReferenceSpace(moveTransform));
+  const newRefSpace = baseReferenceSpace
+    .getOffsetReferenceSpace(rotTransform)
+    .getOffsetReferenceSpace(moveTransform);
+
+  renderer.xr.setReferenceSpace(newRefSpace);
 }
 
 controller1.addEventListener("selectend", onSelectEnd);
@@ -134,8 +102,6 @@ controller1.addEventListener("connected", function (evt) {
 controller2.addEventListener("connected", function (evt) {
   gamepad2 = evt.data.gamepad;
 });
-
-const controllerModelFactory = new XRControllerModelFactory();
 
 const controllerGrip1 = renderer.xr.getControllerGrip(0);
 controllerGrip1.add(
@@ -158,7 +124,7 @@ const tempMatrix = new THREE.Matrix4();
 
 let lastAxesValue = 0;
 
-function animate(ts, xrFrame) {
+function animate() {
   controls.update();
 
   teleportIntersection = null;
@@ -214,14 +180,10 @@ function animate(ts, xrFrame) {
     );
 
     renderer.xr.setReferenceSpace(
-      baseReferenceSpace.getOffsetReferenceSpace(
-        new XRRigidTransform({ x: 0, y: 0, z: 0 }, quat)
-      )
-    );
-
-    renderer.xr.setReferenceSpace(
-      renderer.xr
-        .getReferenceSpace()
+      baseReferenceSpace
+        .getOffsetReferenceSpace(
+          new XRRigidTransform({ x: 0, y: 0, z: 0 }, quat)
+        )
         .getOffsetReferenceSpace(
           new XRRigidTransform(
             lastTeleportPos ?? { x: 0, y: 0, z: 0 },
@@ -231,8 +193,8 @@ function animate(ts, xrFrame) {
     );
 
     lastRotation = quat;
-
     lastAxesValue = value;
+
     break;
   }
 
@@ -250,13 +212,4 @@ function animate(ts, xrFrame) {
   renderer.render(scene, camera);
 }
 
-function onWindowResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
 renderer.setAnimationLoop(animate);
-
-window.addEventListener("resize", onWindowResize, false);
