@@ -55,8 +55,13 @@ let ground = null;
 loader.load("public/bunny.glb", function (gltf) {
   bunny = gltf.scene.children[0];
   bunny.castShadow = true;
-  bunny.position.set(0, 0, -5);
-  scene.add(bunny);
+
+  for (let i = 0; i < 8; ++i) {
+    const bunnyInstance = bunny.clone();
+    bunnyInstance.position.set(i * 4 - 8, 0, -5);
+
+    scene.add(bunnyInstance);
+  }
 });
 
 loader.load("public/ground.glb", function (gltf) {
@@ -71,6 +76,8 @@ const teleportMarker = new THREE.Mesh(
   new THREE.MeshBasicMaterial({ color: 0xbcbcbc })
 );
 
+scene.add(teleportMarker);
+
 let teleportIntersection = null;
 
 const controller1 = renderer.xr.getController(0);
@@ -84,6 +91,9 @@ controller2.addEventListener("selectstart", function () {
   this.userData.isSelecting = true;
 });
 
+let lastTeleportPos = null;
+let lastRotation = null;
+
 function onSelectEnd() {
   this.userData.isSelecting = false;
 
@@ -96,16 +106,34 @@ function onSelectEnd() {
     y: -teleportIntersection.y,
     z: -teleportIntersection.z,
   };
-  const rot = new THREE.Quaternion();
-  const transform = new XRRigidTransform(posn, rot);
-  const teleportSpaceOffset =
-    baseReferenceSpace.getOffsetReferenceSpace(transform);
 
-  renderer.xr.setReferenceSpace(teleportSpaceOffset);
+  lastTeleportPos = posn;
+
+  const rot = lastRotation ?? new THREE.Quaternion();
+  lastRotation = rot;
+
+  const rotTransform = new XRRigidTransform(undefined, rot);
+
+  const rotBase = baseReferenceSpace.getOffsetReferenceSpace(rotTransform);
+
+  const moveTransform = new XRRigidTransform(posn, undefined);
+
+  renderer.xr.setReferenceSpace(rotBase.getOffsetReferenceSpace(moveTransform));
 }
 
 controller1.addEventListener("selectend", onSelectEnd);
 controller2.addEventListener("selectend", onSelectEnd);
+
+let gamepad1 = null;
+let gamepad2 = null;
+
+controller1.addEventListener("connected", function (evt) {
+  gamepad1 = evt.data.gamepad;
+});
+
+controller2.addEventListener("connected", function (evt) {
+  gamepad2 = evt.data.gamepad;
+});
 
 const controllerModelFactory = new XRControllerModelFactory();
 
@@ -128,7 +156,9 @@ controls.update();
 
 const tempMatrix = new THREE.Matrix4();
 
-function animate() {
+let lastAxesValue = 0;
+
+function animate(ts, xrFrame) {
   controls.update();
 
   teleportIntersection = null;
@@ -158,9 +188,57 @@ function animate() {
     break;
   }
 
+  // TODO(Apaar): Clean this up omg
+  for (const gamepad of [gamepad2]) {
+    if (!gamepad) {
+      continue;
+    }
+
+    const value = gamepad.axes[2];
+
+    if (value === 0) {
+      lastAxesValue = 0;
+      continue;
+    }
+
+    if ((lastAxesValue < 0 && value < 0) || (lastAxesValue > 0 && value > 0)) {
+      continue;
+    }
+
+    const prevRot = lastRotation ?? new THREE.Quaternion();
+
+    const quat = prevRot.multiply(
+      new THREE.Quaternion().setFromEuler(
+        new THREE.Euler(0, value < 0 ? -Math.PI / 16 : Math.PI / 16)
+      )
+    );
+
+    renderer.xr.setReferenceSpace(
+      baseReferenceSpace.getOffsetReferenceSpace(
+        new XRRigidTransform({ x: 0, y: 0, z: 0 }, quat)
+      )
+    );
+
+    renderer.xr.setReferenceSpace(
+      renderer.xr
+        .getReferenceSpace()
+        .getOffsetReferenceSpace(
+          new XRRigidTransform(
+            lastTeleportPos ?? { x: 0, y: 0, z: 0 },
+            undefined
+          )
+        )
+    );
+
+    lastRotation = quat;
+
+    lastAxesValue = value;
+    break;
+  }
+
   if (teleportIntersection) {
     teleportMarker.position.copy(teleportIntersection);
-    teleportMarker.position.y += 0.5;
+    teleportMarker.position.y += 0.01;
   }
 
   teleportMarker.visible = teleportIntersection !== null;
