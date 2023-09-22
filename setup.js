@@ -48,7 +48,7 @@ renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
 scene.background = new THREE.Color(0x79c6d4);
 
-dirLight.position.set(1, 1, 0);
+dirLight.position.set(1, 1, 1);
 dirLight.castShadow = true;
 dirLight.shadow.mapSize.width = 1024;
 dirLight.shadow.mapSize.height = 1024;
