@@ -29,7 +29,7 @@ export function init() {
 }
 
 export function allLoaded() {
-  return groundGltf && bunnyGltf && roomGltf;
+  return groundGltf && bunnyGltf && roomGltf && doorGltf;
 }
 
 // Function will be called if/once all models are loaded.
