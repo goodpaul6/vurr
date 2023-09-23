@@ -1,7 +1,7 @@
 // This file serves as one big main function
 
 import { init as initRenderer, renderer } from "./renderer.js";
-import { init as initScene, scene, camera, gltfLoader } from "./scene.js";
+import { init as initScene, scene, camera } from "./scene.js";
 import { init as initInput, update as updateInput } from "./input.js";
 import {
   getReferenceSpace,
@@ -9,16 +9,26 @@ import {
   update as updatePlayer,
 } from "./player.js";
 
+import {
+  init as initModels,
+  update as updateModels,
+  onAllLoaded,
+  bunnyGltf,
+  roomGltf,
+  doorGltf,
+} from "./models.js";
+
 initRenderer();
 initScene();
 initInput();
 initPlayer();
+initModels();
 
 let bunny = null;
 let door = null;
 
-gltfLoader.load("public/bunny.glb", function (gltf) {
-  bunny = gltf.scene.children[0];
+onAllLoaded(function () {
+  bunny = bunnyGltf.scene.children[0];
   bunny.castShadow = true;
 
   for (let i = 0; i < 8; ++i) {
@@ -27,16 +37,21 @@ gltfLoader.load("public/bunny.glb", function (gltf) {
 
     scene.add(bunnyInstance);
   }
-});
 
-gltfLoader.load("public/door.glb", function (gltf) {
-  door = gltf.scene;
+  room = roomGltf.scene;
+  room.position.set(0, 1, 0);
+  room.castShadow = true;
+  scene.add(room);
+
+  door = doorGltf.scene;
   door.position.set(0, 0.1, 0);
   door.castShadow = true;
   scene.add(door);
 });
 
 function animate() {
+  updateModels();
+
   renderer.xr.setReferenceSpace(getReferenceSpace());
 
   // TODO(Apaar): Clean this up omg

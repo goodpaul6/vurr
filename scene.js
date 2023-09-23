@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 import { renderer } from "./renderer.js";
+import { onAllLoaded, groundGltf } from "./models.js";
 
 export const scene = new THREE.Scene();
 export const camera = new THREE.PerspectiveCamera(
@@ -14,8 +14,6 @@ export const camera = new THREE.PerspectiveCamera(
 
 export const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
 export const hemiLight = new THREE.HemisphereLight(0xfcebc3, 0x3b653e);
-
-export const gltfLoader = new GLTFLoader();
 
 const controllerModelFactory = new XRControllerModelFactory();
 export let ground = null;
@@ -55,8 +53,8 @@ export function init() {
 
   scene.add(controllerGrip2);
 
-  gltfLoader.load("public/ground.glb", function (gltf) {
-    ground = gltf.scene.children[0];
+  onAllLoaded(function () {
+    ground = groundGltf.scene.children[0];
     ground.receiveShadow = true;
     scene.add(ground);
   });
