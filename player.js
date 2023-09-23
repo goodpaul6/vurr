@@ -61,7 +61,7 @@ export function update() {
 
   for (const controller of controllers) {
     if (!controller.userData.isSelecting) {
-      return;
+      continue;
     }
 
     controller.updateMatrixWorld(true);
