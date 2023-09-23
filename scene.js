@@ -19,6 +19,7 @@ export const gltfLoader = new GLTFLoader();
 
 const controllerModelFactory = new XRControllerModelFactory();
 export let ground = null;
+export let room = null;
 
 export function init() {
   function onWindowResze() {
@@ -58,5 +59,12 @@ export function init() {
     ground = gltf.scene.children[0];
     ground.receiveShadow = true;
     scene.add(ground);
+  });
+
+  gltfLoader.load("public/room.glb", function (gltf) {
+    room = gltf.scene;
+    room.position.set(0, 0.1, 0);
+    room.castShadow = true;
+    scene.add(room);
   });
 }
