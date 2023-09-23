@@ -16,6 +16,7 @@ export const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
 export const hemiLight = new THREE.HemisphereLight(0xfcebc3, 0x3b653e);
 
 const controllerModelFactory = new XRControllerModelFactory();
+
 export let ground = null;
 export let room = null;
 

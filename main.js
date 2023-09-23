@@ -14,7 +14,6 @@ import {
   update as updateModels,
   onAllLoaded,
   bunnyGltf,
-  roomGltf,
   doorGltf,
 } from "./models.js";
 
@@ -37,11 +36,6 @@ onAllLoaded(function () {
 
     scene.add(bunnyInstance);
   }
-
-  room = roomGltf.scene;
-  room.position.set(0, 1, 0);
-  room.castShadow = true;
-  scene.add(room);
 
   door = doorGltf.scene;
   door.position.set(0, 0.1, 0);
