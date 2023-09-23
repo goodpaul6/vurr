@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 
 import { renderer } from "./renderer.js";
-import { onAllLoaded, groundGltf } from "./models.js";
+import { onAllLoaded, groundGltf, roomGltf } from "./models.js";
 
 export const scene = new THREE.Scene();
 export const camera = new THREE.PerspectiveCamera(
@@ -57,10 +57,8 @@ export function init() {
     ground = groundGltf.scene.children[0];
     ground.receiveShadow = true;
     scene.add(ground);
-  });
 
-  gltfLoader.load("public/room.glb", function (gltf) {
-    room = gltf.scene;
+    room = roomGltf.scene;
     room.position.set(0, 0.1, 0);
     room.castShadow = true;
     scene.add(room);
