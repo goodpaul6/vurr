@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { baseReferenceSpace } from "./renderer.js";
-import { scene } from "./scene.js";
+import { scene, ground } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 
 export let pos = new THREE.Vector3();

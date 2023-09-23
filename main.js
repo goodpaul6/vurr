@@ -1,7 +1,7 @@
 // This file serves as one big main function
 
 import { init as initRenderer, renderer } from "./renderer.js";
-import { init as initScene, scene, camera } from "./scene.js";
+import { init as initScene, scene, camera, gltfLoader } from "./scene.js";
 import { init as initInput, update as updateInput } from "./input.js";
 import {
   getReferenceSpace,
@@ -9,15 +9,12 @@ import {
   update as updatePlayer,
 } from "./player.js";
 
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-
 initRenderer();
 initScene();
 initInput();
 initPlayer();
 
 let bunny = null;
-let ground = null;
 let room = null;
 let door = null;
 
@@ -45,12 +42,6 @@ gltfLoader.load("public/door.glb", function (gltf) {
   door.position.set(0, 1, 0);
   door.castShadow = true;
   scene.add(door);
-});
-
-gltfLoader.load("public/ground.glb", function (gltf) {
-  ground = gltf.scene.children[0];
-  ground.receiveShadow = true;
-  scene.add(ground);
 });
 
 function animate() {
