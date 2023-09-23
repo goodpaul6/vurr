@@ -1,4 +1,5 @@
 // This file serves as one big main function
+import * as THREE from "three";
 
 import { init as initRenderer, renderer } from "./renderer.js";
 import { init as initScene, scene, camera } from "./scene.js";
@@ -9,14 +10,18 @@ import {
   init as initPlayer,
   update as updatePlayer,
 } from "./player.js";
-
 import {
   init as initModels,
   update as updateModels,
   onAllLoaded,
-  bunnyGltf,
   doorGltf,
+  allLoaded,
 } from "./models.js";
+import {
+  init as initBunnies,
+  create as createBunny,
+  update as updateBunnies,
+} from "./bunnies.js";
 
 initRenderer();
 initScene();
@@ -24,19 +29,13 @@ initInput();
 initPlayer();
 initModels();
 initButtons();
+initBunnies();
 
-let bunny = null;
 let door = null;
 
 onAllLoaded(function () {
-  bunny = bunnyGltf.scene.children[0];
-  bunny.castShadow = true;
-
   for (let i = 0; i < 8; ++i) {
-    const bunnyInstance = bunny.clone();
-    bunnyInstance.position.set(i * 4 - 8, 0, -5);
-
-    scene.add(bunnyInstance);
+    createBunny(new THREE.Vector3(0, 0.17, 0));
   }
 
   door = doorGltf.scene;
@@ -50,13 +49,14 @@ function animate() {
 
   renderer.xr.setReferenceSpace(getReferenceSpace());
 
+  if (!allLoaded()) {
+    return;
+  }
+
   // TODO(Apaar): Clean this up omg
   updateInput();
   updatePlayer();
-
-  if (bunny) {
-    bunny.rotation.z += 0.01;
-  }
+  updateBunnies();
 
   renderer.render(scene, camera);
 }
