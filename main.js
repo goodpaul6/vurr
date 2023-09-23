@@ -13,6 +13,8 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 let bunny = null;
 let ground = null;
+let room = null;
+let door = null;
 
 gltfLoader.load("public/bunny.glb", function (gltf) {
   bunny = gltf.scene.children[0];
@@ -24,6 +26,20 @@ gltfLoader.load("public/bunny.glb", function (gltf) {
 
     scene.add(bunnyInstance);
   }
+});
+
+gltfLoader.load("public/room.glb", function (gltf) {
+  room = gltf.scene;
+  room.position.set(0, 1, 0);
+  room.castShadow = true;
+  scene.add(room);
+});
+
+gltfLoader.load("public/door.glb", function (gltf) {
+  door = gltf.scene;
+  door.position.set(0, 1, 0);
+  door.castShadow = true;
+  scene.add(door);
 });
 
 gltfLoader.load("public/ground.glb", function (gltf) {
