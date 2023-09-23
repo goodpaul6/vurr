@@ -9,6 +9,7 @@ export let groundGltf = null;
 export let bunnyGltf = null;
 export let roomGltf = null;
 export let doorGltf = null;
+export let buttonGltf = null;
 
 export function init() {
   gltfLoader.load("public/ground.glb", function (gltf) {
@@ -26,10 +27,14 @@ export function init() {
   gltfLoader.load("public/door.glb", function (gltf) {
     doorGltf = gltf;
   });
+
+  gltfLoader.load("public/button.glb", function (gltf) {
+    buttonGltf = gltf;
+  });
 }
 
 export function allLoaded() {
-  return groundGltf && bunnyGltf && roomGltf && doorGltf;
+  return groundGltf && bunnyGltf && roomGltf && doorGltf && buttonGltf;
 }
 
 // Function will be called if/once all models are loaded.

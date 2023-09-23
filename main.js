@@ -3,7 +3,7 @@
 import { init as initRenderer, renderer } from "./renderer.js";
 import { init as initScene, scene, camera } from "./scene.js";
 import { init as initInput, update as updateInput } from "./input.js";
-import { init as initButtons } from "./button.js";
+import { init as initButtons } from "./buttons.js";
 import {
   getReferenceSpace,
   init as initPlayer,

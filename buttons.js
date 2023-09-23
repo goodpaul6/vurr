@@ -1,11 +1,12 @@
-import * as THREE from "three";
 import { scene } from "./scene.js";
+import { onAllLoaded, buttonGltf } from "./models.js";
 
 export let button = null;
 
 export function init() {
-  const geometry = new THREE.CylinderGeometry( 5, 5, 20, 32 ); 
-  const material = new THREE.MeshStandardMaterial( {color: 0xd04247} ); 
-  button = new THREE.Mesh( geometry, material ); scene.add( button );
+  onAllLoaded(function () {
+    button = buttonGltf.scene;
+    button.castShadow = true;
+    scene.add(button);
+  });
 }
-
