@@ -8,6 +8,9 @@ let bunnyMesh = null;
 const SPEED = 3;
 const TARGET_MAX_DIST = 10;
 
+// 1 hop per unit closer to target pos
+const HOP_RATE = 2;
+
 // To stay away from the room
 const MIN_DIST_FROM_GROUND_CENTER = 0;
 const MAX_DIST_FROM_GROUND_CENTER = 20;
@@ -30,6 +33,7 @@ function randomOffsetPos(vec) {
   for (;;) {
     tempVector.set(Math.random() - 0.5, 0, Math.random() - 0.5);
     tempVector.multiplyScalar(TARGET_MAX_DIST);
+    tempVector.floor();
 
     const newPos = vec.clone().add(tempVector);
 
@@ -57,6 +61,7 @@ export function create(pos) {
 
   instance.userData = {
     ...instance.userData,
+    initY: pos.y,
     targetPos: randomOffsetPos(pos),
     waitTimer: 0,
   };
@@ -72,9 +77,12 @@ export function update(dt) {
       continue;
     }
 
+    // HACK(Apaar): Because we only care about distance in the XZ plane
+    bunny.position.y = bunny.userData.initY;
+
     tempVector.subVectors(bunny.userData.targetPos, bunny.position);
 
-    const d2 = tempVector.lengthSq();
+    const d = tempVector.length();
 
     tempVector.normalize();
 
@@ -85,14 +93,18 @@ export function update(dt) {
     bunny.position.add(tempVector);
     bunny.rotation.set(0, angle, 0, "YXZ");
 
+    bunny.position.y =
+      bunny.userData.initY +
+      Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * 0.5);
+
     const atTargetDist = SPEED / 50;
 
-    if (d2 < atTargetDist * atTargetDist) {
+    if (d <= atTargetDist) {
+      bunny.position.y = bunny.userData.initY;
       bunny.userData.targetPos = randomOffsetPos(bunny.position);
-      // Potentially wait after reaching the target
-      if (Math.random() > 0.8) {
-        bunny.userData.waitTimer = Math.random() * 2 + 2;
-      }
+
+      // Wait after reaching the target
+      bunny.userData.waitTimer = Math.random() * 2 + 1;
     }
   }
 }
