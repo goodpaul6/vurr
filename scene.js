@@ -30,12 +30,16 @@ export function init() {
 
   scene.background = new THREE.Color(0x79c6d4);
 
-  dirLight.position.set(1, 1, 1);
+  dirLight.position.set(10, 10, 10);
   dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 1024;
   dirLight.shadow.mapSize.height = 1024;
   dirLight.shadow.camera.near = 0.5;
   dirLight.shadow.camera.far = 500;
+  dirLight.shadow.camera.left = -20;
+  dirLight.shadow.camera.right = 20;
+  dirLight.shadow.camera.top = 20;
+  dirLight.shadow.camera.bottom = -20;
 
   scene.add(dirLight);
   scene.add(hemiLight);
