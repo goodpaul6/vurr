@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { init as initRenderer, renderer } from "./renderer.js";
 import { init as initScene, scene, camera } from "./scene.js";
 import { init as initInput, update as updateInput } from "./input.js";
-import { init as initButtons } from "./buttons.js";
+import { init as initButtons, update as updateButtons } from "./buttons.js";
 import {
   getReferenceSpace,
   init as initPlayer,
@@ -62,11 +62,11 @@ function animate(ts) {
     return;
   }
 
-  // TODO(Apaar): Clean this up omg
   updateInput();
   updatePlayer();
   updateBunnies(dt);
   updateGrass(ts);
+  updateButtons();
 
   renderer.render(scene, camera);
 }
