@@ -33,6 +33,10 @@ function randomOffsetPos(vec) {
   for (;;) {
     tempVector.set(Math.random() - 0.5, 0, Math.random() - 0.5);
     tempVector.multiplyScalar(TARGET_MAX_DIST);
+
+    // HACK(Apaar): I floor this because the distance must be an integer to start with
+    // otherwise our Math.sin below will probably have the bunny start in the air (integer values
+    // will always result in a Math.sin value of 0 since we multiply it by Math.PI / 2).
     tempVector.floor();
 
     const newPos = vec.clone().add(tempVector);
