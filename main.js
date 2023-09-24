@@ -44,7 +44,12 @@ onAllLoaded(function () {
   scene.add(door);
 });
 
-function animate() {
+let lastTS = 0;
+
+function animate(ts) {
+  const dt = (ts - lastTS) / 1000;
+  lastTS = ts;
+
   updateModels();
 
   renderer.xr.setReferenceSpace(getReferenceSpace());
@@ -56,7 +61,7 @@ function animate() {
   // TODO(Apaar): Clean this up omg
   updateInput();
   updatePlayer();
-  updateBunnies();
+  updateBunnies(dt);
 
   renderer.render(scene, camera);
 }

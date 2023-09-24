@@ -5,9 +5,8 @@ import { scene, ground } from "./scene.js";
 
 let bunnyMesh = null;
 
-const SPEED = 0.05;
+const SPEED = 3;
 const TARGET_MAX_DIST = 10;
-const MIN_DIST_TO_TARGET = 0.05;
 
 // To stay away from the room
 const MIN_DIST_FROM_GROUND_CENTER = 0;
@@ -59,14 +58,20 @@ export function create(pos) {
   instance.userData = {
     ...instance.userData,
     targetPos: randomOffsetPos(pos),
+    waitTimer: 0,
   };
 
   bunnies.push(instance);
   scene.add(instance);
 }
 
-export function update() {
+export function update(dt) {
   for (const bunny of bunnies) {
+    if (bunny.userData.waitTimer > 0) {
+      bunny.userData.waitTimer -= dt;
+      continue;
+    }
+
     tempVector.subVectors(bunny.userData.targetPos, bunny.position);
 
     const d2 = tempVector.lengthSq();
@@ -75,13 +80,19 @@ export function update() {
 
     const angle = Math.atan2(-tempVector.z, tempVector.x);
 
-    tempVector.multiplyScalar(SPEED);
+    tempVector.multiplyScalar(SPEED * dt);
 
     bunny.position.add(tempVector);
     bunny.rotation.set(0, angle, 0, "YXZ");
 
-    if (d2 < MIN_DIST_TO_TARGET * MIN_DIST_TO_TARGET) {
+    const atTargetDist = SPEED / 50;
+
+    if (d2 < atTargetDist * atTargetDist) {
       bunny.userData.targetPos = randomOffsetPos(bunny.position);
+      // Potentially wait after reaching the target
+      if (Math.random() > 0.8) {
+        bunny.userData.waitTimer = Math.random() * 2 + 2;
+      }
     }
   }
 }
