@@ -18,6 +18,9 @@ export function init() {
       return c.name.includes("button");
     })[0];
     pressableButton.userData.initPos = pressableButton.position.clone();
+    button.updateMatrixWorld(true);
+    pressableButton.updateMatrixWorld(true);
+    pressableButton.userData.initMatrixWorld = pressableButton.matrixWorld.clone();
 
     scene.add(button);
   });
@@ -34,7 +37,7 @@ export function update() {
       controller.matrixWorld
     );
     let buttonPos = new THREE.Vector3().setFromMatrixPosition(
-      pressableButton.matrixWorld
+      pressableButton.userData.initMatrixWorld
     );
     if (buttonPos.distanceTo(controllerPos) < 0.1) {
       isPressed = true;
@@ -59,7 +62,6 @@ export function update() {
     }
     pressableButton.position.add(vector);
   } else {
-    pressableButton.userData.isPressed = false;
     if (
       pressableButton.position.distanceTo(pressableButton.userData.initPos) <=
       0.00001
