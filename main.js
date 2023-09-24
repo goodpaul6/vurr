@@ -34,7 +34,7 @@ initBunnies();
 let door = null;
 
 onAllLoaded(function () {
-  for (let i = 0; i < 8; ++i) {
+  for (let i = 0; i < 100; ++i) {
     createBunny(new THREE.Vector3(0, 0.17, 0));
   }
 

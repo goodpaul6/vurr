@@ -10,6 +10,7 @@ const TARGET_MAX_DIST = 10;
 
 // 1 hop per unit closer to target pos
 const HOP_RATE = 2;
+const HOP_HEIGHT = 0.4;
 
 // To stay away from the room
 const MIN_DIST_FROM_GROUND_CENTER = 0;
@@ -95,11 +96,18 @@ export function update(dt) {
     tempVector.multiplyScalar(SPEED * dt);
 
     bunny.position.add(tempVector);
-    bunny.rotation.set(0, angle, 0, "YXZ");
+
+    // TODO(Apaar): See if we can smoothly interpolate the rotation
+    const destOrient = new THREE.Quaternion().setFromEuler(
+      new THREE.Euler(0, angle, 0, "YXZ")
+    );
+
+    bunny.quaternion.rotateTowards(destOrient, 10 * dt);
+    // bunny.rotation.set(0, angle, 0, "YXZ");
 
     bunny.position.y =
       bunny.userData.initY +
-      Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * 0.5);
+      Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * HOP_HEIGHT);
 
     const atTargetDist = SPEED / 50;
 
