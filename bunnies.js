@@ -62,7 +62,7 @@ export function create(pos) {
 
   const instance = bunnyMesh.clone();
 
-  instance.position.set(pos.x, pos.y, pos.z);
+  instance.position.copy(pos);
 
   instance.userData = {
     ...instance.userData,

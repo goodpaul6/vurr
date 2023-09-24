@@ -22,6 +22,7 @@ import {
   create as createBunny,
   update as updateBunnies,
 } from "./bunnies.js";
+import { init as initGrass, update as updateGrass } from "./grass.js";
 
 initRenderer();
 initScene();
@@ -30,11 +31,12 @@ initPlayer();
 initModels();
 initButtons();
 initBunnies();
+initGrass();
 
 let door = null;
 
 onAllLoaded(function () {
-  for (let i = 0; i < 100; ++i) {
+  for (let i = 0; i < 8; ++i) {
     createBunny(new THREE.Vector3(0, 0.17, 0));
   }
 
@@ -47,7 +49,9 @@ onAllLoaded(function () {
 let lastTS = 0;
 
 function animate(ts) {
-  const dt = (ts - lastTS) / 1000;
+  ts /= 1000;
+
+  const dt = ts - lastTS;
   lastTS = ts;
 
   updateModels();
@@ -62,6 +66,7 @@ function animate(ts) {
   updateInput();
   updatePlayer();
   updateBunnies(dt);
+  updateGrass(ts);
 
   renderer.render(scene, camera);
 }
