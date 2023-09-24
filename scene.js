@@ -64,7 +64,7 @@ export function init() {
     scene.add(ground);
 
     room = roomGltf.scene;
-    room.position.set(0, 0.1, 0);
+    room.position.set(0, 0.02, 0);
     room.castShadow = true;
     scene.add(room);
   });
