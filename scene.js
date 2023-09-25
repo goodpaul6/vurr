@@ -73,10 +73,10 @@ export function init() {
     onPhysicsLoaded(function () {
       // TODO(Apaar): Do not hardcode
       groundBody = createCylinderBody({
-        halfHeight: 0.05,
+        halfHeight: 0.1,
         radius: 24,
         position: new THREE.Vector3(),
-        colliderOffset: new THREE.Vector3(0, -0.02, 0),
+        colliderOffset: new THREE.Vector3(0, -0.05, 0),
       });
     });
   });

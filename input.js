@@ -21,6 +21,7 @@ export function init() {
   for (const controller of controllers) {
     controller.addEventListener("connected", function (event) {
       if (event.data.gamepad) {
+        event.data.gamepad.controller = controller;
         gamepads.push(event.data.gamepad);
       }
     });

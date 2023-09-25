@@ -98,6 +98,14 @@ export function updateObjectFromBody(mesh, body) {
   mesh.quaternion.copy(body.rotation());
 }
 
+export function setBodyPositionKinematic(body, enabled) {
+  if (enabled) {
+    body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased);
+  } else {
+    body.setBodyType(RAPIER.RigidBodyType.Dynamic);
+  }
+}
+
 export function update() {
   world.timestep = clock.getDelta();
   world.step();
