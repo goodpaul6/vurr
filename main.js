@@ -60,10 +60,12 @@ onAllLoaded(function () {
 
 let lastTS = 0;
 
+const maxDt = 0.04;
+
 function animate(ts) {
   ts /= 1000;
 
-  const dt = ts - lastTS;
+  const dt = Math.min(ts - lastTS, maxDt);
   lastTS = ts;
 
   updateModels();
