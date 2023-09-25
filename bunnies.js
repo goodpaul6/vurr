@@ -55,33 +55,7 @@ function randomOffsetPos(vec) {
   }
 }
 
-export function create(pos) {
-  if (!bunnyMesh) {
-    throw new Error("Only call 'create' inside or after 'onAllLoaded'");
-  }
-
-  const instance = bunnyMesh.clone();
-
-  instance.position.copy(pos);
-
-  instance.userData = {
-    ...instance.userData,
-    initY: pos.y,
-    targetPos: randomOffsetPos(pos),
-    waitTimer: 0,
-  };
-
-  bunnies.push(instance);
-  scene.add(instance);
-}
-
-export function update(dt) {
-  for (const bunny of bunnies) {
-    if (bunny.userData.waitTimer > 0) {
-      bunny.userData.waitTimer -= dt;
-      continue;
-    }
-
+function moveState(bunny) {
     // HACK(Apaar): Because we only care about distance in the XZ plane
     bunny.position.y = bunny.userData.initY;
 
@@ -103,7 +77,6 @@ export function update(dt) {
     );
 
     bunny.quaternion.rotateTowards(destOrient, 10 * dt);
-    // bunny.rotation.set(0, angle, 0, "YXZ");
 
     bunny.position.y =
       bunny.userData.initY +
@@ -117,6 +90,45 @@ export function update(dt) {
 
       // Wait after reaching the target
       bunny.userData.waitTimer = Math.random() * 2 + 1;
+      
+      return waitState;
     }
+
+  return moveState;
+}
+
+function waitState(bunny, dt) {
+  if(bunny.userData.waitTimer > 0) {
+    bunny.userData.waitTimer -= dt;
+    return waitState;
+  }
+
+  return moveState;
+}
+
+export function create(pos) {
+  if (!bunnyMesh) {
+    throw new Error("Only call 'create' inside or after 'onAllLoaded'");
+  }
+
+  const instance = bunnyMesh.clone();
+
+  instance.position.copy(pos);
+
+  instance.userData = {
+    ...instance.userData,
+    initY: pos.y,
+    targetPos: randomOffsetPos(pos),
+    waitTimer: 0,
+    stateFn: waitState,
+  };
+
+  bunnies.push(instance);
+  scene.add(instance);
+}
+
+export function update(dt) {
+  for (const bunny of bunnies) {
+    bunny.stateFn = bunny.stateFn(bunny, dt);
   }
 }
