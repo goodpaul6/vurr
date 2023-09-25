@@ -13,6 +13,7 @@ export let buttonGltf = null;
 export let grassBladeGltf = null;
 export let flowerGltf = null;
 export let bushGltf = null;
+export let carrotGltf = null;
 
 export function init() {
   gltfLoader.load("public/ground.glb", function (gltf) {
@@ -46,6 +47,10 @@ export function init() {
   gltfLoader.load("public/bush_1.glb", function (gltf) {
     bushGltf = gltf;
   });
+
+  gltfLoader.load("public/carrot.glb", function (gltf) {
+    carrotGltf = gltf;
+  });
 }
 
 export function allLoaded() {
@@ -56,7 +61,8 @@ export function allLoaded() {
     doorGltf &&
     buttonGltf &&
     grassBladeGltf &&
-    bushGltf
+    bushGltf &&
+    carrotGltf
   );
 }
 

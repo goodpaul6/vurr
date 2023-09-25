@@ -3,6 +3,7 @@ import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFa
 
 import { renderer } from "./renderer.js";
 import { onAllLoaded, groundGltf, roomGltf } from "./models.js";
+import { onPhysicsLoaded, createCylinderBody } from "./physics.js";
 
 export const scene = new THREE.Scene();
 export const camera = new THREE.PerspectiveCamera(
@@ -17,6 +18,7 @@ export const hemiLight = new THREE.HemisphereLight(0xfcebc3, 0x3b653e);
 
 export let ground = null;
 export let room = null;
+export let groundBody = null;
 
 const controllerModelFactory = new XRControllerModelFactory();
 
@@ -67,5 +69,15 @@ export function init() {
     room.position.set(0, 0.02, 0);
     room.castShadow = true;
     scene.add(room);
+
+    onPhysicsLoaded(function () {
+      // TODO(Apaar): Do not hardcode
+      groundBody = createCylinderBody({
+        halfHeight: 0.05,
+        radius: 24,
+        position: new THREE.Vector3(),
+        colliderOffset: new THREE.Vector3(0, -0.02, 0),
+      });
+    });
   });
 }

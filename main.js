@@ -30,7 +30,14 @@ import {
 import { init as initDecor, update as updateDecor } from "./decor.js";
 import { init as initBushes, update as updateBushes } from "./bushes.js";
 import { init as initDoor, update as updateDoor, openDoor } from "./door.js";
+import { init as initPhysics, update as updatePhysics } from "./physics.js";
+import {
+  init as initCarrots,
+  create as createCarrot,
+  update as updateCarrots,
+} from "./carrots.js";
 
+initPhysics();
 initRenderer();
 initScene();
 initInput();
@@ -41,6 +48,7 @@ initBunnies();
 initDecor();
 initBushes();
 initDoor();
+initCarrots();
 
 let stats = null;
 
@@ -50,15 +58,13 @@ onAllLoaded(function () {
   }
 
   createButton(new THREE.Vector3(3.5, 0, 0), new THREE.Euler(0, Math.PI, 0), function () {
-    console.log("Pressed!");
     openDoor();
   });
 
   createButton(new THREE.Vector3(0, 0, -2), null, function () {
-    console.log("Pressed B!");
+    createCarrot(new THREE.Vector3(0, 2, -1));
   });
-
-  stats = new Stats();
+  
   stats.showPanel(1);
 
   document.body.appendChild(stats.dom);
@@ -82,6 +88,7 @@ function animate(ts) {
     return;
   }
 
+  updatePhysics();
   updateInput();
   updatePlayer();
   updateBunnies(dt);
@@ -89,6 +96,7 @@ function animate(ts) {
   updateButtons();
   updateBushes(ts);
   updateDoor();
+  updateCarrots();
 
   renderer.render(scene, camera);
 
