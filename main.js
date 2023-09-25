@@ -49,12 +49,12 @@ onAllLoaded(function () {
     createBunny(new THREE.Vector3(0, 0.17, 0));
   }
 
-  createButton(new THREE.Vector3(0, 0, -1), function () {
+  createButton(new THREE.Vector3(3.5, 0, 0), new THREE.Euler(0, Math.PI, 0), function () {
     console.log("Pressed!");
     openDoor();
   });
 
-  createButton(new THREE.Vector3(0, 0, -2), function () {
+  createButton(new THREE.Vector3(0, 0, -2), null, function () {
     console.log("Pressed B!");
   });
 

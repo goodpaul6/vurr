@@ -17,7 +17,7 @@ export function init() {
   });
 }
 
-export function create(pos, onPressFn) {
+export function create(pos, rot, onPressFn) {
   if (!buttonScene) {
     throw new Error("Create must be called inside or after onAllLoaded.");
   }
@@ -25,6 +25,10 @@ export function create(pos, onPressFn) {
   const instance = buttonScene.clone();
 
   instance.position.copy(pos);
+
+  if (rot) {
+    instance.rotation.copy(rot);
+  }
 
   const pressable = instance.children.find(function (c) {
     return c.name.includes("button");

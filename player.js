@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { baseReferenceSpace } from "./renderer.js";
 import { scene, room, ground } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
+import { doorScene as door } from "./door.js";
 
 export let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
@@ -75,13 +76,14 @@ export function update() {
     // Apply controller rotation to ray direction (-1 z forward)
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    const intersects = raycaster.intersectObjects(
-      room.children
-        .filter(function (c) {
-          return c.name.includes("Floor");
-        })
-        .concat(ground)
-    );
+    let objectsToIntersect = room.children.filter(function (c) {
+      return c.name.includes("Floor");
+    });
+    if (door.userData.isOpen) {
+      objectsToIntersect = objectsToIntersect.concat(ground);
+    }
+
+    const intersects = raycaster.intersectObjects(objectsToIntersect);
 
     if (intersects.length > 0) {
       teleportIntersection = intersects[0].point;
