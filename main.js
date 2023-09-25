@@ -26,7 +26,7 @@ import {
   create as createBunny,
   update as updateBunnies,
 } from "./bunnies.js";
-import { init as initGrass, update as updateGrass } from "./grass.js";
+import { init as initGrass, update as updateGrass } from "./decor.js";
 
 initRenderer();
 initScene();

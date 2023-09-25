@@ -11,6 +11,7 @@ export let roomGltf = null;
 export let doorGltf = null;
 export let buttonGltf = null;
 export let grassBladeGltf = null;
+export let flowerGltf = null;
 
 export function init() {
   gltfLoader.load("public/ground.glb", function (gltf) {
@@ -19,6 +20,10 @@ export function init() {
 
   gltfLoader.load("public/grass_blade.glb", function (gltf) {
     grassBladeGltf = gltf;
+  });
+
+  gltfLoader.load("public/flower.glb", function (gltf) {
+    flowerGltf = gltf;
   });
 
   gltfLoader.load("public/bunny.glb", function (gltf) {
