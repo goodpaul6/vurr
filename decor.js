@@ -45,7 +45,7 @@ export function init() {
     const bladeMesh = grassBladeGltf.scene;
 
     addRandomDecor(bladeMesh, blades, function (instance) {
-      instance.scale.z = Math.random();
+      instance.scale.z = Math.random() * 0.8 + 0.2;
       instance.scale.y = instance.scale.z;
     });
 
