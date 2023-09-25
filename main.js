@@ -29,6 +29,7 @@ import {
 } from "./bunnies.js";
 import { init as initDecor, update as updateDecor } from "./decor.js";
 import { init as initBushes, update as updateBushes } from "./bushes.js";
+import { init as initDoor, update as updateDoor, openDoor } from "./door.js";
 
 initRenderer();
 initScene();
@@ -39,8 +40,8 @@ initButtons();
 initBunnies();
 initDecor();
 initBushes();
+initDoor();
 
-let door = null;
 let stats = null;
 
 onAllLoaded(function () {
@@ -50,6 +51,7 @@ onAllLoaded(function () {
 
   createButton(new THREE.Vector3(0, 0, -1), function () {
     console.log("Pressed!");
+    openDoor();
   });
 
   createButton(new THREE.Vector3(0, 0, -2), function () {
@@ -60,11 +62,6 @@ onAllLoaded(function () {
   stats.showPanel(1);
 
   document.body.appendChild(stats.dom);
-
-  door = doorGltf.scene;
-  door.position.set(0, 0.1, 0);
-  door.castShadow = true;
-  scene.add(door);
 });
 
 let lastTS = 0;
@@ -91,6 +88,7 @@ function animate(ts) {
   updateDecor(ts);
   updateButtons();
   updateBushes(ts);
+  updateDoor();
 
   renderer.render(scene, camera);
 
