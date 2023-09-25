@@ -55,7 +55,7 @@ function randomOffsetPos(vec) {
   }
 }
 
-function moveState(bunny) {
+function moveState(bunny, dt) {
     // HACK(Apaar): Because we only care about distance in the XZ plane
     bunny.position.y = bunny.userData.initY;
 
@@ -129,6 +129,6 @@ export function create(pos) {
 
 export function update(dt) {
   for (const bunny of bunnies) {
-    bunny.stateFn = bunny.stateFn(bunny, dt);
+    bunny.userData.stateFn = bunny.userData.stateFn(bunny, dt);
   }
 }
