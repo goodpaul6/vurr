@@ -1,5 +1,6 @@
 // This file serves as one big main function
 import * as THREE from "three";
+import Stats from "three/addons/libs/stats.module.js";
 
 import { init as initRenderer, renderer } from "./renderer.js";
 import { init as initScene, scene, camera } from "./scene.js";
@@ -40,6 +41,7 @@ initDecor();
 initBushes();
 
 let door = null;
+let stats = null;
 
 onAllLoaded(function () {
   for (let i = 0; i < 8; ++i) {
@@ -53,6 +55,11 @@ onAllLoaded(function () {
   createButton(new THREE.Vector3(0, 0, -2), function () {
     console.log("Pressed B!");
   });
+
+  stats = new Stats();
+  stats.showPanel(1);
+
+  document.body.appendChild(stats.dom);
 
   door = doorGltf.scene;
   door.position.set(0, 0.1, 0);
@@ -86,6 +93,8 @@ function animate(ts) {
   updateBushes(ts);
 
   renderer.render(scene, camera);
+
+  stats.update();
 }
 
 renderer.setAnimationLoop(animate);
