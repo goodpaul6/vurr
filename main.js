@@ -4,7 +4,11 @@ import * as THREE from "three";
 import { init as initRenderer, renderer } from "./renderer.js";
 import { init as initScene, scene, camera } from "./scene.js";
 import { init as initInput, update as updateInput } from "./input.js";
-import { init as initButtons, update as updateButtons } from "./buttons.js";
+import {
+  init as initButtons,
+  create as createButton,
+  update as updateButtons,
+} from "./buttons.js";
 import {
   getReferenceSpace,
   init as initPlayer,
@@ -39,6 +43,14 @@ onAllLoaded(function () {
   for (let i = 0; i < 8; ++i) {
     createBunny(new THREE.Vector3(0, 0.17, 0));
   }
+
+  createButton(new THREE.Vector3(0, 0, -1), function () {
+    console.log("Pressed!");
+  });
+
+  createButton(new THREE.Vector3(0, 0, -2), function () {
+    console.log("Pressed B!");
+  });
 
   door = doorGltf.scene;
   door.position.set(0, 0.1, 0);
