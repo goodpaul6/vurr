@@ -10,6 +10,8 @@ export let orient = new THREE.Quaternion();
 
 const raycaster = new THREE.Raycaster();
 
+const DEBUG_MODE = true;
+
 export const teleportMarker = new THREE.Mesh(
   new THREE.CircleGeometry(0.25, 32).rotateX(-Math.PI / 2),
   new THREE.MeshBasicMaterial({ color: 0xbcbcbc })
@@ -18,7 +20,6 @@ export const teleportMarker = new THREE.Mesh(
 const tempMatrix = new THREE.Matrix4();
 
 let teleportIntersection = null;
-let lastAxesValue = 0;
 
 export function getReferenceSpace() {
   // HACK(Apaar): Basically, the MDN documentation lies. If we supply a rotation
@@ -79,7 +80,7 @@ export function update() {
     let objectsToIntersect = room.children.filter(function (c) {
       return c.name.includes("Floor");
     });
-    if (door.userData.isOpen) {
+    if (door.userData.isOpen || DEBUG_MODE) {
       objectsToIntersect = objectsToIntersect.concat(ground);
     }
 
@@ -101,7 +102,7 @@ export function update() {
   }
 
   // Snap turning
-  for (const gamepad of gamepads.slice(1)) {
+  for (const gamepad of gamepads) {
     if (!gamepad) {
       continue;
     }
@@ -109,11 +110,11 @@ export function update() {
     const value = gamepad.axes[2];
 
     if (value === 0) {
-      lastAxesValue = 0;
+      gamepad.lastAxesValue = 0;
       continue;
     }
 
-    if ((lastAxesValue < 0 && value < 0) || (lastAxesValue > 0 && value > 0)) {
+    if ((gamepad.lastAxesValue < 0 && value < 0) || (gamepad.lastAxesValue > 0 && value > 0)) {
       continue;
     }
 
@@ -123,7 +124,7 @@ export function update() {
       )
     );
 
-    lastAxesValue = value;
+    gamepad.lastAxesValue = value;
 
     break;
   }
