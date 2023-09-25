@@ -23,6 +23,7 @@ export function init() {
       if (event.data.gamepad) {
         event.data.gamepad.controller = controller;
         gamepads.push(event.data.gamepad);
+        controller.gamepad = event.data.gamepad;
       }
     });
   }
@@ -30,4 +31,14 @@ export function init() {
 
 export function update() {
   controls.update();
+}
+
+export function tap(controllers) {
+  for (const controller of controllers) {
+    if (!controller.gamepad || !controller.gamepad.vibrationActuator) continue;
+    controller.gamepad.vibrationActuator.playEffect("dual-rumble", {
+      duration: 10,
+      strongMagnitude: 1.0,
+    });
+  }
 }

@@ -4,7 +4,7 @@ import Stats from "three/addons/libs/stats.module.js";
 
 import { init as initRenderer, renderer } from "./renderer.js";
 import { init as initScene, scene, camera } from "./scene.js";
-import { init as initInput, update as updateInput } from "./input.js";
+import { init as initInput, update as updateInput, tap } from "./input.js";
 import {
   init as initButtons,
   create as createButton,
@@ -19,7 +19,6 @@ import {
   init as initModels,
   update as updateModels,
   onAllLoaded,
-  doorGltf,
   allLoaded,
 } from "./models.js";
 import {
@@ -57,13 +56,23 @@ onAllLoaded(function () {
     createBunny(new THREE.Vector3(0, 0.17, 0));
   }
 
-  createButton(new THREE.Vector3(3.5, 0, 0), new THREE.Euler(0, Math.PI, 0), function () {
-    openDoor();
-  });
+  createButton(
+    new THREE.Vector3(3.5, 0, 0),
+    new THREE.Euler(0, Math.PI, 0),
+    function (pressedControllers) {
+      tap(pressedControllers);
+      openDoor();
+    }
+  );
 
-  createButton(new THREE.Vector3(0, 0, -2), null, function () {
-    createCarrot(new THREE.Vector3(0, 2, -1));
-  });
+  createButton(
+    new THREE.Vector3(0, 0, -2),
+    null,
+    function (pressedControllers) {
+      tap(pressedControllers);
+      createCarrot(new THREE.Vector3(0, 2, -1));
+    }
+  );
 
   stats = new Stats();
   

@@ -54,8 +54,7 @@ export function update() {
   buttonLoop: for (const button of buttons) {
     const pressableButton = button.userData.pressable;
 
-    let isPressed = false;
-
+    let controllersPressingButton = [];
     for (const controller of controllers) {
       // Force an update - we don't see the updated matrix world ever otherwise
       controller.updateMatrixWorld(true);
@@ -71,13 +70,13 @@ export function update() {
 
       // TODO(Apaar): Prevent the player from pushing buttons from underneath
       if (buttonPos.distanceTo(controllerPos) < 0.1) {
-        isPressed = true;
+        controllersPressingButton.push(controller);
       }
     }
 
-    if (isPressed) {
+    if (controllersPressingButton.length > 0) {
       if (!pressableButton.userData.wasPressed) {
-        pressableButton.userData.onPressFn();
+        pressableButton.userData.onPressFn(controllersPressingButton);
       }
 
       const maxButtonTravelDist = 0.025;
@@ -122,6 +121,6 @@ export function update() {
 
     // We don't set it until after so that we can check above that it was the first time the button
     // was pressed and call the onPressFn.
-    pressableButton.userData.wasPressed = isPressed;
+    pressableButton.userData.wasPressed = controllersPressingButton.length > 0;
   }
 }
