@@ -97,7 +97,7 @@ export function update() {
         !gamepad.hasCarrot &&
         !carrot.userData.heldByGamepad &&
         gamepad.buttons[1].value > pressedValue &&
-        carrotWorldPos.distanceTo(tempVector) < 0.1
+        carrotWorldPos.distanceTo(tempVector) < 0.2
       ) {
         carrot.userData.heldByGamepad = gamepad;
         // HACK(Apaar): Very hacky
