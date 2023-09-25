@@ -64,6 +64,8 @@ onAllLoaded(function () {
   createButton(new THREE.Vector3(0, 0, -2), null, function () {
     createCarrot(new THREE.Vector3(0, 2, -1));
   });
+
+  stats = new Stats();
   
   stats.showPanel(1);
 
