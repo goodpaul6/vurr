@@ -26,7 +26,8 @@ import {
   create as createBunny,
   update as updateBunnies,
 } from "./bunnies.js";
-import { init as initGrass, update as updateGrass } from "./decor.js";
+import { init as initDecor, update as updateDecor } from "./decor.js";
+import { init as initBushes, update as updateBushes } from "./bushes.js";
 
 initRenderer();
 initScene();
@@ -35,7 +36,8 @@ initPlayer();
 initModels();
 initButtons();
 initBunnies();
-initGrass();
+initDecor();
+initBushes();
 
 let door = null;
 
@@ -79,8 +81,9 @@ function animate(ts) {
   updateInput();
   updatePlayer();
   updateBunnies(dt);
-  updateGrass(ts);
+  updateDecor(ts);
   updateButtons();
+  updateBushes(ts);
 
   renderer.render(scene, camera);
 }

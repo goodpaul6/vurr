@@ -10,7 +10,7 @@ function addRandomDecor(mesh, decorArr) {
     const v = new THREE.Vector3();
     const groundRadius = ground.geometry.boundingSphere.radius * ground.scale.x;
 
-    for (let i = 0; i < 200; ++i) {
+    for (let i = 0; i < 150; ++i) {
       v.randomDirection();
       v.y = 0;
 
@@ -28,6 +28,10 @@ function addRandomDecor(mesh, decorArr) {
 
         bladeInstance.scale.x = Math.random();
         bladeInstance.scale.z = bladeInstance.scale.x;
+
+        if (bladeInstance.scale.lengthSq() < 0.2) {
+          continue;
+        }
 
         decorArr.push(bladeInstance);
         scene.add(bladeInstance);

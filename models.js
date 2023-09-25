@@ -12,6 +12,7 @@ export let doorGltf = null;
 export let buttonGltf = null;
 export let grassBladeGltf = null;
 export let flowerGltf = null;
+export let bushGltf = null;
 
 export function init() {
   gltfLoader.load("public/ground.glb", function (gltf) {
@@ -41,17 +42,22 @@ export function init() {
   gltfLoader.load("public/button.glb", function (gltf) {
     buttonGltf = gltf;
   });
+
+  gltfLoader.load("public/bush_1.glb", function (gltf) {
+    bushGltf = gltf;
+  });
 }
 
 export function allLoaded() {
-    return (
-      groundGltf &&
-      bunnyGltf &&
-      roomGltf &&
-      doorGltf &&
-      buttonGltf &&
-      grassBladeGltf
-    );
+  return (
+    groundGltf &&
+    bunnyGltf &&
+    roomGltf &&
+    doorGltf &&
+    buttonGltf &&
+    grassBladeGltf &&
+    bushGltf
+  );
 }
 
 // Function will be called if/once all models are loaded.
