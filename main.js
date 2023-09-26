@@ -75,7 +75,7 @@ onAllLoaded(function () {
     null,
     function (pressedControllers) {
       tap(pressedControllers);
-      createCarrot(new THREE.Vector3(0, 2, -1));
+      createCarrot(new THREE.Vector3(0, 1.5, -1));
     }
   );
 

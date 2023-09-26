@@ -97,14 +97,28 @@ export function init() {
       });
 
       for (const mesh of room.children) {
-        const size = mesh.geometry.boundingBox.getSize(new THREE.Vector3());
+        const min = mesh.geometry.boundingBox.min;
+        const max = mesh.geometry.boundingBox.max;
+
+        const mat = new THREE.Matrix4();
+        mat.makeRotationFromQuaternion(mesh.quaternion);
+
+        min.applyMatrix4(mat);
+        max.applyMatrix4(mat);
+
+        const center = new THREE.Vector3()
+          .addScaledVector(min, 0.5)
+          .addScaledVector(max, 0.5);
+
+        const size = new THREE.Vector3().subVectors(max, min);
 
         createAndAttachCuboidCollider({
           body: roomBody,
-          hx: size.x / 2,
-          hy: size.y / 2,
-          hz: size.z / 2,
-          offset: mesh.geometry.boundingBox.getCenter(new THREE.Vector3()),
+          // HACK(Apaar): We do Math.max because some meshes are tooo thin
+          hx: Math.max(Math.abs(size.x) / 2, 0.05),
+          hy: Math.max(Math.abs(size.y) / 2, 0.05),
+          hz: Math.max(Math.abs(size.z) / 2, 0.05),
+          offset: center,
         });
       }
 
@@ -122,8 +136,10 @@ export function update() {
 
   // Add body objects to scene if they haven't been added
   forEachBody(function (body) {
-    if (body.obj && !body.obj.parent) {
-      scene.add(body.obj);
+    if (!body.obj || body.obj.parent) {
+      return;
     }
+
+    scene.add(body.obj);
   });
 }
