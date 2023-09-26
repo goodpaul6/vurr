@@ -142,10 +142,11 @@ export function setBodyType(body, type) {
 const DEBUG_MATERIAL = new THREE.MeshBasicMaterial({
   color: 0x00ff00,
   transparent: true,
-  opacity: 0.5,
+  opacity: 0.25,
 });
 
 const DEBUG_BOX = new THREE.BoxGeometry(1, 1, 1);
+const DEBUG_CYLINDER = new THREE.CylinderGeometry(1, 1, 1);
 
 export function forEachBody(fn) {
   bodies.forEach(fn);
@@ -179,8 +180,14 @@ export function update() {
 
           // Actually, this attach method ought to do the trick
           body.obj.attach(mesh);
-        } else {
-          // TODO(Apaar): Implement
+        } else if (shape instanceof RAPIER.Cylinder) {
+          const mesh = new THREE.Mesh(DEBUG_CYLINDER, DEBUG_MATERIAL);
+
+          mesh.position.copy(collider.translation());
+
+          mesh.scale.set(shape.radius, shape.halfHeight * 2, shape.radius);
+
+          body.obj.attach(mesh);
         }
       }
     }

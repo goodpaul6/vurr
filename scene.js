@@ -83,11 +83,9 @@ export function init() {
     scene.add(room);
 
     onPhysicsLoaded(function () {
-      const radius = ground.geometry.boundingSphere.radius * ground.scale.x;
-
       groundBody = createCylinderBody({
         halfHeight: 0.1,
-        radius,
+        radius: 24.7,
         position: new THREE.Vector3(),
         colliderOffset: new THREE.Vector3(0, -0.05, 0),
       });
