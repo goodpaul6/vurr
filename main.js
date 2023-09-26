@@ -1,4 +1,9 @@
 // This file serves as one big main function
+
+// Spawn as many bunnies as necessary to spell HBD HORATIU
+// and every time he feeds one it goes to its place in the
+// words.
+
 import * as THREE from "three";
 import Stats from "three/addons/libs/stats.module.js";
 
@@ -52,10 +57,6 @@ initCarrots();
 let stats = null;
 
 onAllLoaded(function () {
-  for (let i = 0; i < 8; ++i) {
-    createBunny(new THREE.Vector3(0, 0.17, 0));
-  }
-
   createButton(
     new THREE.Vector3(3.5, 0, 0),
     new THREE.Euler(0, Math.PI, 0),
@@ -75,7 +76,7 @@ onAllLoaded(function () {
   );
 
   stats = new Stats();
-  
+
   stats.showPanel(0);
 
   document.body.appendChild(stats.dom);

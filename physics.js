@@ -33,7 +33,7 @@ export function onPhysicsLoaded(fn) {
   }
 }
 
-function createBody(position, quat, mass, colliderDesc) {
+export function createEmptyBody({ position, quat = null, mass = 0 }) {
   const desc =
     mass > 0 ? RAPIER.RigidBodyDesc.dynamic() : RAPIER.RigidBodyDesc.fixed();
   desc.setTranslation(...position);
@@ -42,9 +42,34 @@ function createBody(position, quat, mass, colliderDesc) {
   }
 
   const body = world.createRigidBody(desc);
-  world.createCollider(colliderDesc, body);
-
   bodies.push(body);
+
+  return body;
+}
+
+export function createAndAttachCuboidCollider({
+  body,
+  hx,
+  hy,
+  hz,
+  offset = null,
+}) {
+  const colliderDesc = RAPIER.ColliderDesc.cuboid(hx, hy, hz);
+  if (offset !== null) {
+    colliderDesc.setTranslation(...offset);
+  }
+
+  return world.createCollider(colliderDesc, body);
+}
+
+function createBody(position, quat, mass, colliderDesc) {
+  const body = createEmptyBody({
+    position,
+    quat,
+    mass,
+  });
+
+  world.createCollider(colliderDesc, body);
 
   return body;
 }

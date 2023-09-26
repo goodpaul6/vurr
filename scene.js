@@ -3,7 +3,12 @@ import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFa
 
 import { renderer } from "./renderer.js";
 import { onAllLoaded, groundGltf, roomGltf } from "./models.js";
-import { onPhysicsLoaded, createCylinderBody } from "./physics.js";
+import {
+  onPhysicsLoaded,
+  createCylinderBody,
+  createEmptyBody,
+  createAndAttachCuboidCollider,
+} from "./physics.js";
 
 export const scene = new THREE.Scene();
 export const camera = new THREE.PerspectiveCamera(
@@ -19,6 +24,7 @@ export const hemiLight = new THREE.HemisphereLight(0xfcebc3, 0x3b653e);
 export let ground = null;
 export let room = null;
 export let groundBody = null;
+export let roomBody = null;
 
 const controllerModelFactory = new XRControllerModelFactory();
 
@@ -73,13 +79,22 @@ export function init() {
     scene.add(room);
 
     onPhysicsLoaded(function () {
-      // TODO(Apaar): Do not hardcode
+      const radius = ground.geometry.boundingSphere.radius * ground.scale.x;
+
       groundBody = createCylinderBody({
         halfHeight: 0.1,
-        radius: 24,
+        radius,
         position: new THREE.Vector3(),
         colliderOffset: new THREE.Vector3(0, -0.05, 0),
       });
+
+      roomBody = createEmptyBody({
+        position: new THREE.Vector3(),
+      });
+
+      // TODO(Apaar): Attach colliders for walls of room. I wish this could be
+      // automated some way? Maybe traverse children and attach a collider for
+      // each geometry's boundingBox.
     });
   });
 }

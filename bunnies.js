@@ -20,12 +20,42 @@ const bunnies = [];
 
 const tempVector = new THREE.Vector3();
 
+const HBD_STRING = `
+         *  * ***  ***
+         *  * *  * *  *
+         **** ***  *  *
+         *  * *  * *  *
+         *  * ***  ***
+  
+
+*  * **** ***   **  **** **** *  *
+*  * *  * *  * *  *  *    *   *  *
+**** *  * ***  ****  *    *   *  *
+*  * *  * *  * *  *  *    *   *  *
+*  * **** *  * *  *  *   ****  **
+`;
+
 export function init() {
   bunnies.length = 0;
 
   onAllLoaded(function () {
     bunnyMesh = bunnyGltf.scene.children[0];
     bunnyMesh.castShadow = true;
+
+    const lines = HBD_STRING.split("\n");
+
+    for (let y = 0; y < lines.length; ++y) {
+      const line = lines[y];
+      for (let x = 0; x < line.length; ++x) {
+        if (line[x] !== "*") {
+          continue;
+        }
+
+        const finalPos = new THREE.Vector3(x * 0.6 - 9, 0, y * 0.6 + 9);
+
+        create(finalPos, finalPos);
+      }
+    }
   });
 }
 
@@ -56,57 +86,59 @@ function randomOffsetPos(vec) {
 }
 
 function moveState(bunny, dt) {
-    // HACK(Apaar): Because we only care about distance in the XZ plane
+  // HACK(Apaar): Because we only care about distance in the XZ plane
+  bunny.position.y = bunny.userData.initY;
+
+  tempVector.subVectors(bunny.userData.targetPos, bunny.position);
+
+  const d = tempVector.length();
+
+  tempVector.normalize();
+
+  const angle = Math.atan2(-tempVector.z, tempVector.x);
+
+  tempVector.multiplyScalar(SPEED * dt);
+
+  bunny.position.add(tempVector);
+
+  // TODO(Apaar): See if we can smoothly interpolate the rotation
+  const destOrient = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(0, angle, 0, "YXZ")
+  );
+
+  bunny.quaternion.rotateTowards(destOrient, 10 * dt);
+
+  bunny.position.y =
+    bunny.userData.initY +
+    Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * HOP_HEIGHT);
+
+  const atTargetDist = SPEED / 50;
+
+  if (d <= atTargetDist) {
     bunny.position.y = bunny.userData.initY;
+    bunny.userData.targetPos = randomOffsetPos(bunny.position);
 
-    tempVector.subVectors(bunny.userData.targetPos, bunny.position);
+    // Wait after reaching the target
+    bunny.userData.waitTimer = Math.random() * 2 + 1;
 
-    const d = tempVector.length();
-
-    tempVector.normalize();
-
-    const angle = Math.atan2(-tempVector.z, tempVector.x);
-
-    tempVector.multiplyScalar(SPEED * dt);
-
-    bunny.position.add(tempVector);
-
-    // TODO(Apaar): See if we can smoothly interpolate the rotation
-    const destOrient = new THREE.Quaternion().setFromEuler(
-      new THREE.Euler(0, angle, 0, "YXZ")
-    );
-
-    bunny.quaternion.rotateTowards(destOrient, 10 * dt);
-
-    bunny.position.y =
-      bunny.userData.initY +
-      Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * HOP_HEIGHT);
-
-    const atTargetDist = SPEED / 50;
-
-    if (d <= atTargetDist) {
-      bunny.position.y = bunny.userData.initY;
-      bunny.userData.targetPos = randomOffsetPos(bunny.position);
-
-      // Wait after reaching the target
-      bunny.userData.waitTimer = Math.random() * 2 + 1;
-      
-      return waitState;
-    }
-
-  return moveState;
-}
-
-function waitState(bunny, dt) {
-  if(bunny.userData.waitTimer > 0) {
-    bunny.userData.waitTimer -= dt;
     return waitState;
   }
 
   return moveState;
 }
 
-export function create(pos) {
+function waitState(bunny, dt) {
+  if (bunny.userData.waitTimer > 0) {
+    bunny.userData.waitTimer -= dt;
+    return waitState;
+  }
+
+  // HACK(Apaar): Just for testing
+  // return moveState;
+  return waitState;
+}
+
+export function create(pos, finalPos) {
   if (!bunnyMesh) {
     throw new Error("Only call 'create' inside or after 'onAllLoaded'");
   }
@@ -119,6 +151,7 @@ export function create(pos) {
     ...instance.userData,
     initY: pos.y,
     targetPos: randomOffsetPos(pos),
+    finalPos: finalPos.clone(),
     waitTimer: 0,
     stateFn: waitState,
   };
