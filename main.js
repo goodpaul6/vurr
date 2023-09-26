@@ -3,6 +3,9 @@
 // Spawn as many bunnies as necessary to spell HBD HORATIU
 // and every time he feeds one it goes to its place in the
 // words.
+//
+// Actually, since there are 116 bunnies, for every carrot you feed,
+// a random sample of 10 of them go into position.
 
 import * as THREE from "three";
 import Stats from "three/addons/libs/stats.module.js";

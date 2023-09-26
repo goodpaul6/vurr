@@ -13,7 +13,7 @@ const HOP_RATE = 2;
 const HOP_HEIGHT = 0.4;
 
 // To stay away from the room
-const MIN_DIST_FROM_GROUND_CENTER = 0;
+const MIN_DIST_FROM_GROUND_CENTER = 8;
 const MAX_DIST_FROM_GROUND_CENTER = 20;
 
 const bunnies = [];
@@ -51,7 +51,7 @@ export function init() {
           continue;
         }
 
-        const finalPos = new THREE.Vector3(x * 0.6 - 9, 0, y * 0.6 + 9);
+        const finalPos = new THREE.Vector3(x * 0.6 - 9, 0.16, y * 0.6 + 9);
 
         create(finalPos, finalPos);
       }
@@ -133,9 +133,7 @@ function waitState(bunny, dt) {
     return waitState;
   }
 
-  // HACK(Apaar): Just for testing
-  // return moveState;
-  return waitState;
+  return moveState;
 }
 
 export function create(pos, finalPos) {

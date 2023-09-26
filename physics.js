@@ -132,7 +132,7 @@ export function setBodyType(body, type) {
       body.setBodyType(RAPIER.RigidBodyType.Dynamic);
       break;
     case BODY_TYPE_POSN_KINEMATIC:
-      body.setBodyType(RAPIER.RigidBodyType.Dynamic);
+      body.setBodyType(RAPIER.RigidBodyType.KinematicPositionBased);
       break;
   }
 }

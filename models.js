@@ -62,7 +62,8 @@ export function allLoaded() {
     buttonGltf &&
     grassBladeGltf &&
     bushGltf &&
-    carrotGltf
+    carrotGltf &&
+    flowerGltf
   );
 }
 
