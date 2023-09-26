@@ -80,6 +80,7 @@ export function init() {
       bunnies.length
     );
     bunniesIMesh.castShadow = true;
+    bunniesIMesh.frustumCulled = false;
 
     scene.add(bunniesIMesh);
   });
