@@ -29,11 +29,7 @@ import {
   onAllLoaded,
   allLoaded,
 } from "./models.js";
-import {
-  init as initBunnies,
-  create as createBunny,
-  update as updateBunnies,
-} from "./bunnies.js";
+import { init as initBunnies, update as updateBunnies } from "./bunnies.js";
 import { init as initDecor, update as updateDecor } from "./decor.js";
 import { init as initBushes, update as updateBushes } from "./bushes.js";
 import { init as initDoor, update as updateDoor, openDoor } from "./door.js";

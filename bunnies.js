@@ -3,8 +3,6 @@ import * as THREE from "three";
 import { onAllLoaded, bunnyGltf } from "./models.js";
 import { scene, ground, ROOM_RADIUS } from "./scene.js";
 
-let bunnyMesh = null;
-
 const SPEED = 3;
 const TARGET_MAX_DIST = 10;
 
@@ -17,8 +15,11 @@ const MIN_DIST_FROM_GROUND_CENTER = ROOM_RADIUS;
 const MAX_DIST_FROM_GROUND_CENTER = 20;
 
 const bunnies = [];
+let bunniesIMesh = null;
 
 const tempVector = new THREE.Vector3();
+const tempMatrix = new THREE.Matrix4();
+const ONE = new THREE.Vector3(1, 1, 1);
 
 const HBD_STRING = `
          *  * ***  ***
@@ -35,13 +36,27 @@ const HBD_STRING = `
 *  * **** *  * *  *  *   ****  **
 `;
 
+function create(pos, finalPos) {
+  const instance = {
+    position: pos.clone(),
+    quaternion: new THREE.Quaternion(),
+    initY: pos.y,
+    targetPos: randomOffsetPos(pos),
+    finalPos: finalPos.clone(),
+    waitTimer: 0,
+    stateFn: waitState,
+    index: bunnies.length,
+  };
+
+  bunnies.push(instance);
+
+  return instance;
+}
+
 export function init() {
   bunnies.length = 0;
 
   onAllLoaded(function () {
-    bunnyMesh = bunnyGltf.scene.children[0];
-    bunnyMesh.castShadow = true;
-
     const lines = HBD_STRING.split("\n");
 
     for (let y = 0; y < lines.length; ++y) {
@@ -56,6 +71,17 @@ export function init() {
         create(finalPos, finalPos);
       }
     }
+
+    const bunnyMesh = bunnyGltf.scene.children[0];
+
+    bunniesIMesh = new THREE.InstancedMesh(
+      bunnyMesh.geometry,
+      bunnyMesh.material,
+      bunnies.length
+    );
+    bunniesIMesh.castShadow = true;
+
+    scene.add(bunniesIMesh);
   });
 }
 
@@ -87,9 +113,9 @@ function randomOffsetPos(vec) {
 
 function moveState(bunny, dt) {
   // HACK(Apaar): Because we only care about distance in the XZ plane
-  bunny.position.y = bunny.userData.initY;
+  bunny.position.y = bunny.initY;
 
-  tempVector.subVectors(bunny.userData.targetPos, bunny.position);
+  tempVector.subVectors(bunny.targetPos, bunny.position);
 
   const d = tempVector.length();
 
@@ -109,17 +135,16 @@ function moveState(bunny, dt) {
   bunny.quaternion.rotateTowards(destOrient, 10 * dt);
 
   bunny.position.y =
-    bunny.userData.initY +
-    Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * HOP_HEIGHT);
+    bunny.initY + Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * HOP_HEIGHT);
 
   const atTargetDist = SPEED / 50;
 
   if (d <= atTargetDist) {
-    bunny.position.y = bunny.userData.initY;
-    bunny.userData.targetPos = randomOffsetPos(bunny.position);
+    bunny.position.y = bunny.initY;
+    bunny.targetPos = randomOffsetPos(bunny.position);
 
     // Wait after reaching the target
-    bunny.userData.waitTimer = Math.random() * 2 + 1;
+    bunny.waitTimer = Math.random() * 2 + 1;
 
     return waitState;
   }
@@ -128,38 +153,21 @@ function moveState(bunny, dt) {
 }
 
 function waitState(bunny, dt) {
-  if (bunny.userData.waitTimer > 0) {
-    bunny.userData.waitTimer -= dt;
+  if (bunny.waitTimer > 0) {
+    bunny.waitTimer -= dt;
     return waitState;
   }
 
   return moveState;
 }
 
-export function create(pos, finalPos) {
-  if (!bunnyMesh) {
-    throw new Error("Only call 'create' inside or after 'onAllLoaded'");
-  }
-
-  const instance = bunnyMesh.clone();
-
-  instance.position.copy(pos);
-
-  instance.userData = {
-    ...instance.userData,
-    initY: pos.y,
-    targetPos: randomOffsetPos(pos),
-    finalPos: finalPos.clone(),
-    waitTimer: 0,
-    stateFn: waitState,
-  };
-
-  bunnies.push(instance);
-  scene.add(instance);
-}
-
 export function update(dt) {
   for (const bunny of bunnies) {
-    bunny.userData.stateFn = bunny.userData.stateFn(bunny, dt);
+    bunny.stateFn = bunny.stateFn(bunny, dt);
+
+    tempMatrix.compose(bunny.position, bunny.quaternion, ONE);
+    bunniesIMesh.setMatrixAt(bunny.index, tempMatrix);
   }
+
+  bunniesIMesh.instanceMatrix.needsUpdate = true;
 }
