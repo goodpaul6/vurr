@@ -5,7 +5,9 @@ import { onAllLoaded, carrotGltf } from "./models.js";
 import {
   createCapsuleBody,
   updateObjectFromBody,
-  setBodyPositionKinematic,
+  setBodyType,
+  BODY_TYPE_POSN_KINEMATIC,
+  BODY_TYPE_DYNAMIC,
 } from "./physics.js";
 import { gamepads } from "./input.js";
 
@@ -88,7 +90,8 @@ export function update() {
         if (gamepad.buttons[1].value < pressedValue) {
           carrot.userData.heldByGamepad.hasCarrot = false;
           carrot.userData.heldByGamepad = null;
-          setBodyPositionKinematic(carrot.userData.body, false);
+
+          setBodyType(carrot.userData.body, BODY_TYPE_DYNAMIC);
         } else {
           carrot.userData.body.setNextKinematicTranslation(tempVector);
           carrot.userData.body.setNextKinematicRotation(tempQuat);
@@ -103,7 +106,7 @@ export function update() {
         // HACK(Apaar): Very hacky
         gamepad.hasCarrot = true;
 
-        setBodyPositionKinematic(carrot.userData.body, true);
+        setBodyType(carrot.userData.body, BODY_TYPE_POSN_KINEMATIC);
       }
     }
 

@@ -7,10 +7,6 @@ export let doorScene = null;
 
 const maxHeight = 2.3;
 
-export function openDoor() {
-    doorScene.userData.isOpen = true;
-}
-
 export function init() {
   onAllLoaded(function () {
     doorScene = doorGltf.scene;
@@ -19,6 +15,10 @@ export function init() {
     doorScene.castShadow = true;
     scene.add(doorScene);
   });
+}
+
+export function openDoor() {
+  doorScene.userData.isOpen = true;
 }
 
 export function update() {
