@@ -15,6 +15,8 @@ const tempMatrix = new THREE.Matrix4();
 export const BODY_TYPE_DYNAMIC = 0;
 export const BODY_TYPE_POSN_KINEMATIC = 1;
 
+export const DEBUG_MODE = true;
+
 export function init() {
   RAPIER.init().then(function () {
     world = new RAPIER.World(new THREE.Vector3(0, -9.8, 0));
@@ -137,7 +139,53 @@ export function setBodyType(body, type) {
   }
 }
 
+const DEBUG_MATERIAL = new THREE.MeshBasicMaterial({
+  color: 0x00ff00,
+  transparent: true,
+  opacity: 0.5,
+});
+
+const DEBUG_BOX = new THREE.BoxGeometry(1, 1, 1);
+
+export function forEachBody(fn) {
+  bodies.forEach(fn);
+}
+
 export function update() {
+  if (DEBUG_MODE) {
+    for (const body of bodies) {
+      if (body.obj) {
+        updateObjectFromBody(body.obj, body);
+        continue;
+      }
+
+      body.obj = new THREE.Object3D();
+
+      for (let i = 0; i < body.numColliders(); ++i) {
+        const collider = body.collider(i);
+        const shape = collider.shape;
+
+        if (shape instanceof RAPIER.Cuboid) {
+          const mesh = new THREE.Mesh(DEBUG_BOX, DEBUG_MATERIAL);
+
+          // TODO(Apaar): Apparently this is world space translation, but I hope it's not.
+          mesh.position.copy(collider.translation());
+
+          mesh.scale.set(
+            shape.halfExtents.x * 2,
+            shape.halfExtents.y * 2,
+            shape.halfExtents.z * 2
+          );
+
+          // Actually, this attach method ought to do the trick
+          body.obj.attach(mesh);
+        } else {
+          // TODO(Apaar): Implement
+        }
+      }
+    }
+  }
+
   world.timestep = clock.getDelta();
   world.step();
 }

@@ -8,6 +8,8 @@ import {
   createCylinderBody,
   createEmptyBody,
   createAndAttachCuboidCollider,
+  DEBUG_MODE as PHYSICS_DEBUG_MODE,
+  forEachBody,
 } from "./physics.js";
 
 export const scene = new THREE.Scene();
@@ -91,12 +93,37 @@ export function init() {
       });
 
       roomBody = createEmptyBody({
-        position: new THREE.Vector3(),
+        position: room.position.clone(),
       });
+
+      for (const mesh of room.children) {
+        const size = mesh.geometry.boundingBox.getSize(new THREE.Vector3());
+
+        createAndAttachCuboidCollider({
+          body: roomBody,
+          hx: size.x / 2,
+          hy: size.y / 2,
+          hz: size.z / 2,
+          offset: mesh.geometry.boundingBox.getCenter(new THREE.Vector3()),
+        });
+      }
 
       // TODO(Apaar): Attach colliders for walls of room. I wish this could be
       // automated some way? Maybe traverse children and attach a collider for
       // each geometry's boundingBox.
     });
+  });
+}
+
+export function update() {
+  if (!PHYSICS_DEBUG_MODE) {
+    return;
+  }
+
+  // Add body objects to scene if they haven't been added
+  forEachBody(function (body) {
+    if (body.obj && !body.obj.parent) {
+      scene.add(body.obj);
+    }
   });
 }

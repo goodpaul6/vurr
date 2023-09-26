@@ -11,7 +11,12 @@ import * as THREE from "three";
 import Stats from "three/addons/libs/stats.module.js";
 
 import { init as initRenderer, renderer } from "./renderer.js";
-import { init as initScene, scene, camera } from "./scene.js";
+import {
+  init as initScene,
+  update as updateScene,
+  scene,
+  camera,
+} from "./scene.js";
 import { init as initInput, update as updateInput, tap } from "./input.js";
 import {
   init as initButtons,
@@ -100,6 +105,7 @@ function animate(ts) {
   }
 
   updatePhysics();
+  updateScene();
   updateInput();
   updatePlayer();
   updateBunnies(dt);
