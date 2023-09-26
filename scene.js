@@ -67,7 +67,9 @@ export function init() {
 
     room = roomGltf.scene;
     room.position.set(0, 0.02, 0);
-    room.castShadow = true;
+    for (const child of room.children) {
+      child.castShadow = true;
+    }
     scene.add(room);
 
     onPhysicsLoaded(function () {

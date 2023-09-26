@@ -72,7 +72,7 @@ export function init() {
       return { ...v, index: i };
     });
 
-    const flowerTransforms = makeRandomDecorTransforms(10, function (instance) {
+    const flowerTransforms = makeRandomDecorTransforms(4, function (instance) {
       instance.scale.x = Math.random();
       instance.scale.z = instance.scale.x;
     });
