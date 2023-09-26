@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { onAllLoaded, bunnyGltf } from "./models.js";
-import { scene, ground } from "./scene.js";
+import { scene, ground, ROOM_RADIUS } from "./scene.js";
 
 let bunnyMesh = null;
 
@@ -13,7 +13,7 @@ const HOP_RATE = 2;
 const HOP_HEIGHT = 0.4;
 
 // To stay away from the room
-const MIN_DIST_FROM_GROUND_CENTER = 8;
+const MIN_DIST_FROM_GROUND_CENTER = ROOM_RADIUS;
 const MAX_DIST_FROM_GROUND_CENTER = 20;
 
 const bunnies = [];

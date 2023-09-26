@@ -1,12 +1,14 @@
 import * as THREE from "three";
 
 import { onAllLoaded, bushGltf } from "./models.js";
-import { scene, ground } from "./scene.js";
+import { scene, ground, ROOM_RADIUS } from "./scene.js";
 
 const bushes = [];
 
 export function init() {
   bushes.length = 0;
+
+  const ZERO = new THREE.Vector3();
 
   onAllLoaded(function () {
     if (!ground) {
@@ -25,10 +27,11 @@ export function init() {
 
     // Distribute evenly around the ground; not too many
     for (let i = 0; i < 20; ++i) {
-      v.randomDirection();
-      v.y = 0;
-
-      v.multiplyScalar(groundRadius / 2.0);
+      do {
+        v.randomDirection().setY(0);
+        v.multiplyScalar(groundRadius / 2.0);
+        // Min radius around house
+      } while (v.distanceToSquared(ZERO) < ROOM_RADIUS * ROOM_RADIUS);
 
       const instance = bushScene.clone();
 
@@ -42,4 +45,22 @@ export function init() {
   });
 }
 
-export function update(elapsed) {}
+export function update(elapsed) {
+  const tempMat = new THREE.Matrix4();
+
+  for (const bush of bushes) {
+    bush.matrixAutoUpdate = false;
+
+    tempMat.makeShear(
+      0,
+      0,
+      0,
+      0,
+      Math.sin(elapsed * 2 + bush.position.x + bush.position.z) * 0.1,
+      0
+    );
+    bush.matrix
+      .compose(bush.position, bush.quaternion, bush.scale)
+      .multiply(tempMat);
+  }
+}

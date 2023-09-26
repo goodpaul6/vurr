@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { onAllLoaded, grassBladeGltf, flowerGltf } from "./models.js";
-import { scene, ground } from "./scene.js";
+import { scene, ground, ROOM_RADIUS } from "./scene.js";
 
 let blades = [];
 let bladesIMesh = null;
@@ -12,13 +12,14 @@ function makeRandomDecorTransforms(clusterCount, editFn) {
   const transforms = [];
 
   const v = new THREE.Vector3();
+  const ZERO = new THREE.Vector3();
   const groundRadius = ground.geometry.boundingSphere.radius * ground.scale.x;
 
   for (let i = 0; i < clusterCount; ++i) {
-    v.randomDirection();
-    v.y = 0;
-
-    v.multiplyScalar(groundRadius / 2.0);
+    do {
+      v.randomDirection().setY(0);
+      v.multiplyScalar(groundRadius / 2.0);
+    } while (v.distanceToSquared(ZERO) < ROOM_RADIUS * ROOM_RADIUS);
 
     const count = Math.floor(Math.random() * 5 + 4);
 
