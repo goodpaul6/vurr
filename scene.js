@@ -19,6 +19,7 @@ export const camera = new THREE.PerspectiveCamera(
   0.1,
   1000
 );
+export const listener = new THREE.AudioListener();
 
 export const dirLight = new THREE.DirectionalLight(0xffffff, 0.1);
 export const hemiLight = new THREE.HemisphereLight(0xfcebc3, 0x3b653e, 0.1);
@@ -41,6 +42,8 @@ export function init() {
   window.addEventListener("resize", onWindowResze);
 
   scene.background = new THREE.Color(0x79c6d4);
+
+  camera.add(listener);
 
   dirLight.position.set(10, 10, 10);
   dirLight.castShadow = true;

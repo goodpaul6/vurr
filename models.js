@@ -1,6 +1,8 @@
+import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const gltfLoader = new GLTFLoader();
+const audioLoader = new THREE.AudioLoader();
 
 // Array of functions that are called once all the models are loaded.
 const allLoadedHandlers = [];
@@ -14,6 +16,7 @@ export let grassBladeGltf = null;
 export let flowerGltf = null;
 export let bushGltf = null;
 export let carrotGltf = null;
+export let buttonClickSoundBuffer = null;
 
 export function init() {
   gltfLoader.load("public/ground.glb", function (gltf) {
@@ -51,6 +54,10 @@ export function init() {
   gltfLoader.load("public/carrot.glb", function (gltf) {
     carrotGltf = gltf;
   });
+
+  audioLoader.load("public/button_click.ogg", function (buffer) {
+    buttonClickSoundBuffer = buffer;
+  });
 }
 
 export function allLoaded() {
@@ -63,7 +70,8 @@ export function allLoaded() {
     grassBladeGltf &&
     bushGltf &&
     carrotGltf &&
-    flowerGltf
+    flowerGltf &&
+    buttonClickSoundBuffer
   );
 }
 

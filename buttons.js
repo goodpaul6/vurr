@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { scene } from "./scene.js";
-import { onAllLoaded, buttonGltf } from "./models.js";
+import { listener, scene } from "./scene.js";
+import { onAllLoaded, buttonGltf, buttonClickSoundBuffer } from "./models.js";
 import { controllers } from "./input.js";
 
 export const buttons = [];
@@ -46,6 +46,15 @@ export function create(pos, rot, onPressFn) {
   // clone the instance (hopefully).
   pressable.userData.onPressFn = onPressFn;
 
+  const sound = new THREE.PositionalAudio(listener);
+
+  pressable.userData.sound = sound;
+
+  sound.setBuffer(buttonClickSoundBuffer);
+  sound.setRefDistance(0.3);
+
+  pressable.add(sound);
+
   buttons.push(instance);
   scene.add(instance);
 }
@@ -77,6 +86,8 @@ export function update() {
     if (controllersPressingButton.length > 0) {
       if (!pressableButton.userData.wasPressed) {
         pressableButton.userData.onPressFn(controllersPressingButton);
+        pressableButton.userData.sound.stop();
+        pressableButton.userData.sound.play();
       }
 
       const maxButtonTravelDist = 0.025;
