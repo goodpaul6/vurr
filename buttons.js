@@ -17,7 +17,7 @@ export function init() {
   });
 }
 
-export function create(pos, rot, onPressFn) {
+export function create(pos, rot, color, onPressFn) {
   if (!buttonScene) {
     throw new Error("Create must be called inside or after onAllLoaded.");
   }
@@ -54,6 +54,10 @@ export function create(pos, rot, onPressFn) {
   sound.setRefDistance(0.3);
 
   pressable.add(sound);
+
+  if (color) {
+    pressable.material.color = color;
+  }
 
   buttons.push(instance);
   scene.add(instance);

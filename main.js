@@ -73,6 +73,7 @@ onAllLoaded(function () {
   createButton(
     new THREE.Vector3(0, 0, -2),
     null,
+    new THREE.Color(0xe07a36),
     function (pressedControllers) {
       tap(pressedControllers);
       createCarrot(new THREE.Vector3(0, 1.5, -1));
