@@ -97,26 +97,15 @@ export function init() {
   });
 }
 
-function randomOffsetPos(vec) {
-  // We keep looping until we generate a position within bounds
-  for (;;) {
-    tempVector.subVectors(newPos, ground.position);
-
-    const d2 = tempVector.lengthSq();
-
-    if (
-      d2 <= MAX_DIST_FROM_GROUND_CENTER * MAX_DIST_FROM_GROUND_CENTER &&
-      d2 >= MIN_DIST_FROM_GROUND_CENTER * MIN_DIST_FROM_GROUND_CENTER
-    ) {
-      return newPos;
-    }
-  }
+function isBunnyOnGround(bunny) {
+  return Math.abs(bunny.position.y - bunny.initY) <= 0.005;
 }
 
 function enterWaitState({ bunny, waitFor }) {
-  if (Math.abs(bunny.position.y - bunny.initY) > 0.005) {
+  if (!isBunnyOnGround(bunny)) {
     console.error("Why is the bunny floating????");
   }
+
   bunny.position.y = bunny.initY;
   bunny.targetPos = null;
   bunny.waitTimer = waitFor;
@@ -132,17 +121,6 @@ function enterMoveState({ bunny, hopDirection, numHops }) {
   bunny.waitTimer = null;
 
   return moveState;
-}
-
-function subXZOnly(destVec, vecA, vecB) {
-  const dx = vecA.x - vecB.x;
-  const dz = vecA.z - vecB.z;
-
-  destVec.x = dx;
-  destVec.y = 0;
-  destVec.z = dz;
-
-  return destVec;
 }
 
 // Returns true once we're done hopping.
@@ -190,75 +168,88 @@ function moveState(bunny, dt) {
   return moveState;
 }
 
-function towardsPlayerPos(vec, y) {
-  console.log(
-    "Diff between world pos and vector: ",
-    tempVector.subVectors(playerWorldPos(), vec)
-  );
-  const vecDiff = tempVector
-    .subVectors(playerWorldPos(), vec)
-    .setY(y)
-    .normalize();
-  return vec.clone().add(vecDiff);
+function enterBegState({ bunny }) {
+  bunny.position.y = bunny.initY;
+
+  return begState;
 }
 
 function begState(bunny, dt) {
   if (bunny.position.distanceTo(playerWorldPos()) >= BEG_MAX_DIST) {
-    // We are too far away to feed the bunny
-    bunny.waitTimer = 0;
-    return approachState;
+    return enterApproachState({
+      bunny,
+    });
   }
 
-  // Only adjust bunny direction every waitTimer to avoid jarring turns
-  // if (bunny.waitTimer > 0) {
-  //   bunny.waitTimer -= dt;
-  //   return begState;
-  // }
-
-  tempVector
-    .subVectors(playerWorldPos(), bunny.position)
-    .setY(bunny.position.y);
-
-  const angle = Math.atan2(-tempVector.z, tempVector.x);
-
-  // TODO(Apaar): See if we can smoothly interpolate the rotation
-  const destOrient = new THREE.Quaternion().setFromEuler(
-    new THREE.Euler(0, angle, 0, "YXZ")
-  );
-
-  bunny.quaternion.rotateTowards(destOrient, 10 * dt);
-
-  // bunny.waitTimer = 1;
-  // Bunny can be fed carrot here
+  turnTowardsPlayer(bunny, dt);
   return begState;
 }
 
+function enterApproachWaitState({ bunny, waitFor }) {
+  bunny.position.y = bunny.initY;
+  bunny.waitTimer = waitFor;
+
+  return approachWaitState;
+}
+
 function approachWaitState(bunny, dt) {
+  if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
+    // We are too far away for the bunny to care
+    return enterWaitState({
+      bunny,
+      waitFor: 1,
+    });
+  }
+
+  if (bunny.position.distanceTo(playerWorldPos()) < BEG_MAX_DIST) {
+    return enterBegState({
+      bunny,
+    });
+  }
+
   if (bunny.waitTimer > 0) {
     bunny.waitTimer -= dt;
     return approachWaitState;
   }
-  bunny.targetPos = towardsPlayerPos(bunny.position, bunny.initY);
+
+  return approachState;
+}
+
+function enterApproachState({ bunny }) {
+  tempVector.subVectors(playerWorldPos(), bunny.position).setY(0);
+  tempVector.normalize();
+
+  // The hop direction will always be towards the player
+  bunny.hopDirection = tempVector.clone();
+  bunny.numHops = 1;
+
+  bunny.posBeforeHop = bunny.position.clone();
+  bunny.waitTimer = null;
+
   return approachState;
 }
 
 function approachState(bunny, dt) {
-  if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
-    // We are too far away for the bunny to care
-    bunny.waitTimer = 0;
-    return waitState;
+  if (doHops(bunny, dt)) {
+    return enterApproachWaitState({ bunny, waitFor: 1 });
   }
-  if (
-    bunny.position.distanceTo(playerWorldPos()) < BEG_MAX_DIST &&
-    Math.abs(bunny.position.y - bunny.initY) <= 0.05
-  ) {
-    return begState;
+
+  return approachState;
+}
+
+function enterCuriousState({ bunny, waitFor }) {
+  if (!isBunnyOnGround(bunny)) {
+    console.error("Why float???");
   }
+
   bunny.position.y = bunny.initY;
-  tempVector.subVectors(bunny.targetPos, bunny.position);
+  bunny.waitTimer = waitFor;
 
-  const d = tempVector.length();
+  return curiousState;
+}
 
+function turnTowardsPlayer(bunny, dt) {
+  tempVector.subVectors(playerWorldPos(), bunny.position).setY(0);
   tempVector.normalize();
 
   const angle = Math.atan2(-tempVector.z, tempVector.x);
@@ -269,64 +260,39 @@ function approachState(bunny, dt) {
   );
 
   bunny.quaternion.rotateTowards(destOrient, 10 * dt);
-
-  tempVector.multiplyScalar(SPEED * dt);
-
-  bunny.position.add(tempVector);
-
-  bunny.position.y =
-    bunny.initY + Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * HOP_HEIGHT);
-
-  const atTargetDist = SPEED / 10;
-
-  if (d <= atTargetDist && Math.abs(bunny.position.y - bunny.initY) <= 0.05) {
-    if (bunny.position.distanceTo(playerWorldPos()) < BEG_WAIT_DIST) {
-      bunny.waitTimer = 2;
-      return begState;
-    }
-    bunny.waitTimer = 1;
-    return approachWaitState;
-  }
-  return approachState;
 }
 
 function curiousState(bunny, dt) {
   if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
     // We are too far away for the bunny to care
-    bunny.waitTimer = 0;
-    return waitState;
-  }
-  if (bunny.waitTimer <= 0) {
-    // The bunny has waited long enough; time to risk a close encounter
-    // We normalize this vector because we only want the bunny to hop twice each time
-    bunny.targetPos = towardsPlayerPos(bunny.position, bunny.initY);
-    return approachState;
+    return enterWaitState({
+      bunny,
+      waitFor: 1,
+    });
   }
 
-  tempVector.subVectors(playerWorldPos(), bunny.position);
+  turnTowardsPlayer(bunny, dt);
 
-  tempVector.normalize();
+  if (bunny.waitTimer > 0) {
+    bunny.waitTimer -= dt;
+    return curiousState;
+  }
 
-  const angle = Math.atan2(-tempVector.z, tempVector.x);
+  // The bunny has waited long enough; time to risk a close encounter
+  // We normalize this vector because we only want the bunny to hop twice each time
 
-  // TODO(Apaar): See if we can smoothly interpolate the rotation
-  const destOrient = new THREE.Quaternion().setFromEuler(
-    new THREE.Euler(0, angle, 0, "YXZ")
-  );
-
-  bunny.quaternion.rotateTowards(destOrient, 10 * dt);
-
-  bunny.waitTimer -= dt;
-  return curiousState;
+  return enterApproachState({
+    bunny,
+  });
 }
 
 function waitState(bunny, dt) {
-  /*
   if (bunny.position.distanceTo(playerWorldPos()) < CURIOUS_STATE_CHANGE_DIST) {
-    bunny.waitTimer = 5;
-    return curiousState;
+    return enterCuriousState({
+      bunny,
+      waitFor: 3,
+    });
   }
-  */
 
   if (bunny.waitTimer > 0) {
     bunny.waitTimer -= dt;
