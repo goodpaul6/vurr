@@ -63,7 +63,9 @@ export function init() {
 
     bladesIMesh = new THREE.InstancedMesh(
       bladeMesh.geometry,
-      bladeMesh.material,
+      new THREE.MeshPhongMaterial({
+        color: bladeMesh.material.color,
+      }),
       bladeTransforms.length
     );
 

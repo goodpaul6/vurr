@@ -73,6 +73,11 @@ export function init() {
   onAllLoaded(function () {
     ground = groundGltf.scene.children[0];
     ground.receiveShadow = true;
+
+    // NOTE(Apaar): This is a major GPU fragment optimization
+    ground.material = new THREE.MeshPhongMaterial({
+      color: ground.material.color,
+    });
     scene.add(ground);
 
     room = roomGltf.scene;
@@ -83,11 +88,13 @@ export function init() {
     scene.add(room);
 
     onPhysicsLoaded(function () {
+      // FIXME(Apaar): For some reason the debug geometry for this shows up correctly but
+      // this is actually not large enough to cover the ground, wild...
       groundBody = createCylinderBody({
-        halfHeight: 0.1,
+        halfHeight: 0.5,
         radius: 24.7,
         position: new THREE.Vector3(),
-        colliderOffset: new THREE.Vector3(0, -0.05, 0),
+        colliderOffset: new THREE.Vector3(0, -0.5, 0),
       });
 
       roomBody = createEmptyBody({
@@ -95,6 +102,12 @@ export function init() {
       });
 
       for (const mesh of room.children) {
+        mesh.material = new THREE.MeshPhongMaterial({
+          color: mesh.material.color,
+          map: mesh.material.map,
+          side: THREE.DoubleSide,
+        });
+
         const min = mesh.geometry.boundingBox.min;
         const max = mesh.geometry.boundingBox.max;
 

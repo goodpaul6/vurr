@@ -16,7 +16,7 @@ const ONE = new THREE.Vector3(1, 1, 1);
 export const BODY_TYPE_DYNAMIC = 0;
 export const BODY_TYPE_POSN_KINEMATIC = 1;
 
-export const DEBUG_MODE = true;
+export const DEBUG_MODE = false;
 
 export function init() {
   RAPIER.init().then(function () {
@@ -143,7 +143,7 @@ export function setBodyType(body, type) {
 const DEBUG_MATERIAL = new THREE.MeshBasicMaterial({
   color: 0x00ff00,
   transparent: true,
-  opacity: 0.25,
+  opacity: 0.15,
 });
 
 const DEBUG_BOX = new THREE.BoxGeometry(1, 1, 1);

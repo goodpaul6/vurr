@@ -76,7 +76,9 @@ export function init() {
 
     bunniesIMesh = new THREE.InstancedMesh(
       bunnyMesh.geometry,
-      bunnyMesh.material,
+      new THREE.MeshPhongMaterial({
+        map: bunnyMesh.material.map,
+      }),
       bunnies.length
     );
     bunniesIMesh.castShadow = true;

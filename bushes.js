@@ -21,6 +21,9 @@ export function init() {
 
     for (const child of bushScene.children) {
       child.castShadow = true;
+      child.material = new THREE.MeshPhongMaterial({
+        color: child.material.color,
+      });
     }
 
     const v = new THREE.Vector3();
