@@ -2,6 +2,7 @@ import * as THREE from "three";
 
 import { onAllLoaded, bunnyGltf } from "./models.js";
 import { scene, ground, ROOM_RADIUS } from "./scene.js";
+import { worldPos as playerWorldPos } from "./player.js";
 
 const SPEED = 3;
 const TARGET_MAX_DIST = 10;
@@ -13,6 +14,12 @@ const HOP_HEIGHT = 0.4;
 // To stay away from the room
 const MIN_DIST_FROM_GROUND_CENTER = ROOM_RADIUS;
 const MAX_DIST_FROM_GROUND_CENTER = 20;
+
+// Constants determining state changes and bunny distances
+const CURIOUS_STATE_CHANGE_DIST = 6;
+const CURIOUS_MAX_DIST = 7;
+const BEG_WAIT_DIST = 3;
+const BEG_MAX_DIST = 4;
 
 const bunnies = [];
 let bunniesIMesh = null;
@@ -155,7 +162,127 @@ function moveState(bunny, dt) {
   return moveState;
 }
 
+function towardsPlayerPos(vec) {
+  console.log(
+    "Diff between world pos and vector: ",
+    tempVector.subVectors(playerWorldPos(), vec)
+  );
+  const vecDiff = tempVector
+    .subVectors(playerWorldPos(), vec)
+    .setY(vec.y)
+    .normalize();
+  return vec.clone().add(vecDiff);
+}
+
+function begState(bunny, dt) {
+  if (bunny.position.distanceTo(playerWorldPos()) >= BEG_MAX_DIST) {
+    // We are too far away to feed the bunny
+    bunny.waitTimer = 0;
+    return approachState;
+  }
+
+  tempVector.clone(towardsPlayerPos(bunny.position));
+
+  const angle = Math.atan2(-tempVector.z, tempVector.x);
+
+  // TODO(Apaar): See if we can smoothly interpolate the rotation
+  const destOrient = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(0, angle, 0, "YXZ")
+  );
+
+  bunny.quaternion.rotateTowards(destOrient, 10 * dt);
+
+  // Bunny can be fed carrot here
+  return begState;
+}
+
+function approachWaitState(bunny, dt) {
+  if (bunny.waitTimer > 0) {
+    bunny.waitTimer -= dt;
+    return approachWaitState;
+  }
+  bunny.targetPos = towardsPlayerPos(bunny.position);
+  return approachState;
+}
+
+function approachState(bunny, dt) {
+  if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
+    // We are too far away for the bunny to care
+    bunny.waitTimer = 0;
+    bunny.targetPos = bunny.position;
+    return moveState;
+  }
+  bunny.position.y = bunny.initY;
+  tempVector.subVectors(bunny.targetPos, bunny.position);
+
+  const d = tempVector.length();
+
+  tempVector.normalize();
+
+  const angle = Math.atan2(-tempVector.z, tempVector.x);
+
+  // TODO(Apaar): See if we can smoothly interpolate the rotation
+  const destOrient = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(0, angle, 0, "YXZ")
+  );
+
+  bunny.quaternion.rotateTowards(destOrient, 10 * dt);
+
+  tempVector.multiplyScalar(SPEED * dt);
+
+  bunny.position.add(tempVector);
+
+  bunny.position.y =
+    bunny.initY + Math.abs(Math.sin((d * HOP_RATE * Math.PI) / 2) * HOP_HEIGHT);
+
+  const atTargetDist = SPEED / 50;
+
+  if (d <= atTargetDist) {
+    if (bunny.position.distanceTo(playerWorldPos()) < BEG_WAIT_DIST) {
+      return begState;
+    }
+    bunny.waitTimer = 2;
+    return approachWaitState;
+  }
+  return approachState;
+}
+
+function curiousState(bunny, dt) {
+  if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
+    // We are too far away for the bunny to care
+    bunny.waitTimer = 0;
+    bunny.targetPos = bunny.position;
+    return moveState;
+  }
+  if (bunny.waitTimer <= 0) {
+    // The bunny has waited long enough; time to risk a close encounter
+    // We normalize this vector because we only want the bunny to hop twice each time
+    bunny.targetPos = towardsPlayerPos(bunny.position);
+    return approachState;
+  }
+
+  tempVector.subVectors(playerWorldPos(), bunny.position);
+
+  tempVector.normalize();
+
+  const angle = Math.atan2(-tempVector.z, tempVector.x);
+
+  // TODO(Apaar): See if we can smoothly interpolate the rotation
+  const destOrient = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(0, angle, 0, "YXZ")
+  );
+
+  bunny.quaternion.rotateTowards(destOrient, 10 * dt);
+
+  bunny.waitTimer -= dt;
+  return curiousState;
+}
+
 function waitState(bunny, dt) {
+  if (bunny.position.distanceTo(playerWorldPos()) < CURIOUS_STATE_CHANGE_DIST) {
+    bunny.waitTimer = 5;
+    return curiousState;
+  }
   if (bunny.waitTimer > 0) {
     bunny.waitTimer -= dt;
     return waitState;
