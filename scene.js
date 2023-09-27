@@ -102,12 +102,6 @@ export function init() {
       });
 
       for (const mesh of room.children) {
-        mesh.material = new THREE.MeshPhongMaterial({
-          color: mesh.material.color,
-          map: mesh.material.map,
-          side: THREE.DoubleSide,
-        });
-
         const min = mesh.geometry.boundingBox.min;
         const max = mesh.geometry.boundingBox.max;
 
@@ -132,10 +126,6 @@ export function init() {
           offset: center,
         });
       }
-
-      // TODO(Apaar): Attach colliders for walls of room. I wish this could be
-      // automated some way? Maybe traverse children and attach a collider for
-      // each geometry's boundingBox.
     });
   });
 }
