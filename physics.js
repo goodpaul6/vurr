@@ -11,6 +11,7 @@ const clock = new THREE.Clock();
 const tempVec = new THREE.Vector3();
 const tempQuat = new THREE.Quaternion();
 const tempMatrix = new THREE.Matrix4();
+const ONE = new THREE.Vector3(1, 1, 1);
 
 export const BODY_TYPE_DYNAMIC = 0;
 export const BODY_TYPE_POSN_KINEMATIC = 1;
@@ -169,8 +170,21 @@ export function update() {
         if (shape instanceof RAPIER.Cuboid) {
           const mesh = new THREE.Mesh(DEBUG_BOX, DEBUG_MATERIAL);
 
-          // TODO(Apaar): Apparently this is world space translation, but I hope it's not.
-          mesh.position.copy(collider.translation());
+          // This is in world space, so we use the inverse of the parent body's
+          // transform to get the collider's pos in local space
+          const colliderTranslation = collider.translation();
+
+          tempVec.copy(body.translation());
+          tempQuat.copy(body.rotation());
+
+          tempMatrix.compose(tempVec, tempQuat, ONE);
+          tempMatrix.invert();
+
+          const localPos = new THREE.Vector3()
+            .copy(colliderTranslation)
+            .applyMatrix4(tempMatrix);
+
+          mesh.position.copy(localPos);
 
           mesh.scale.set(
             shape.halfExtents.x * 2,
@@ -178,8 +192,7 @@ export function update() {
             shape.halfExtents.z * 2
           );
 
-          // Actually, this attach method ought to do the trick
-          body.obj.attach(mesh);
+          body.obj.add(mesh);
         } else if (shape instanceof RAPIER.Cylinder) {
           const mesh = new THREE.Mesh(DEBUG_CYLINDER, DEBUG_MATERIAL);
 
@@ -187,7 +200,7 @@ export function update() {
 
           mesh.scale.set(shape.radius, shape.halfHeight * 2, shape.radius);
 
-          body.obj.attach(mesh);
+          body.obj.add(mesh);
         }
       }
     }
