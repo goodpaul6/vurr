@@ -56,6 +56,8 @@ export function create(pos, rot, color, onPressFn) {
   pressable.add(sound);
 
   if (color) {
+    // threejs objects share the same material by default
+    pressable.material = pressable.material.clone();
     pressable.material.color = color;
   }
 

@@ -64,6 +64,7 @@ onAllLoaded(function () {
   createButton(
     new THREE.Vector3(3.5, 0, 0),
     new THREE.Euler(0, Math.PI, 0),
+    null,
     function (pressedControllers) {
       tap(pressedControllers);
       openDoor();
