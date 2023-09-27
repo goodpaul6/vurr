@@ -148,6 +148,7 @@ const DEBUG_MATERIAL = new THREE.MeshBasicMaterial({
 
 const DEBUG_BOX = new THREE.BoxGeometry(1, 1, 1);
 const DEBUG_CYLINDER = new THREE.CylinderGeometry(1, 1, 1);
+const DEBUG_CAPSULE = new THREE.CapsuleGeometry(1, 1);
 
 export function forEachBody(fn) {
   bodies.forEach(fn);
@@ -195,6 +196,13 @@ export function update() {
           body.obj.add(mesh);
         } else if (shape instanceof RAPIER.Cylinder) {
           const mesh = new THREE.Mesh(DEBUG_CYLINDER, DEBUG_MATERIAL);
+
+          mesh.position.copy(localPos);
+          mesh.scale.set(shape.radius, shape.halfHeight * 2, shape.radius);
+
+          body.obj.add(mesh);
+        } else if (shape instanceof RAPIER.Capsule) {
+          const mesh = new THREE.Mesh(DEBUG_CAPSULE, DEBUG_MATERIAL);
 
           mesh.position.copy(localPos);
           mesh.scale.set(shape.radius, shape.halfHeight * 2, shape.radius);
