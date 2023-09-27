@@ -145,7 +145,8 @@ function subXZOnly(destVec, vecA, vecB) {
   return destVec;
 }
 
-function moveState(bunny, dt) {
+// Returns true once we're done hopping.
+function doHops(bunny, dt) {
   tempVector.copy(bunny.hopDirection);
 
   const angle = Math.atan2(-tempVector.z, tempVector.x);
@@ -167,17 +168,24 @@ function moveState(bunny, dt) {
   bunny.position.y =
     bunny.initY + Math.abs(Math.sin(hopTillGoal * Math.PI) * HOP_HEIGHT);
 
-  if (hopTillGoal > HOP_TILL_GOAL_THRESHOLD) return moveState;
+  if (hopTillGoal > HOP_TILL_GOAL_THRESHOLD) {
+    return false;
+  }
 
   bunny.numHops--;
   bunny.position.y = bunny.initY;
   bunny.posBeforeHop = bunny.position.clone();
 
-  if (bunny.numHops <= 0)
+  return bunny.numHops <= 0;
+}
+
+function moveState(bunny, dt) {
+  if (doHops(bunny, dt)) {
     return enterWaitState({
       bunny,
       waitFor: Math.random() * 2 + 1,
     });
+  }
 
   return moveState;
 }
