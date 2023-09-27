@@ -32,19 +32,13 @@ export function init() {
     scene.add(doorScene);
 
     onPhysicsLoaded(function () {
-      collider.geometry.computeBoundingBox();
-
-      const min = collider.geometry.boundingBox.min
-        .clone()
-        .multiply(collider.scale);
-      const max = collider.geometry.boundingBox.max
-        .clone()
-        .multiply(collider.scale);
+      const min = collider.geometry.boundingBox.min.clone();
+      const max = collider.geometry.boundingBox.max.clone();
 
       const mat = new THREE.Matrix4().compose(
         collider.position,
         collider.quaternion,
-        new THREE.Vector3(1, 1, 1)
+        collider.scale
       );
 
       min.applyMatrix4(mat);
