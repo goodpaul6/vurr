@@ -1,7 +1,12 @@
 import * as THREE from "three";
 
-import { onAllLoaded, doorGltf } from "./models.js";
-import { scene, dirLight, hemiLight } from "./scene.js";
+import {
+  onAllLoaded,
+  doorGltf,
+  doorOpenLoopSoundBuffer,
+  doorOpenClickSoundBuffer,
+} from "./models.js";
+import { scene, dirLight, hemiLight, listener } from "./scene.js";
 import {
   onPhysicsLoaded,
   createCuboidBody,
@@ -33,6 +38,13 @@ export function init() {
         collider = child;
       }
     });
+
+    const sound = new THREE.PositionalAudio(listener);
+    collider.userData.sound = sound;
+
+    sound.setBuffer(doorOpenLoopSoundBuffer);
+
+    collider.add(sound);
 
     doorScene.userData.isOpen = false;
     doorScene.position.set(0, 0.02, 0);
@@ -74,13 +86,27 @@ export function init() {
 
 export function openDoor() {
   doorScene.userData.isOpen = true;
+
+  collider.userData.sound.setLoop(true);
+  collider.userData.sound.play();
 }
 
 export function update() {
   if (!doorScene.userData.isOpen) return;
-  if (doorScene.position.y >= maxHeight) return;
+  if (doorScene.position.y >= maxHeight) {
+    return;
+  }
 
   doorScene.position.add(new THREE.Vector3(0, 0.008, 0));
+
+  if (doorScene.position.y >= maxHeight) {
+    // Door just passed max height, play the click sound
+    collider.userData.sound.stop();
+    collider.userData.sound.setLoop(false);
+    collider.userData.sound.setBuffer(doorOpenClickSoundBuffer);
+    collider.userData.sound.play();
+  }
+
   doorScene.userData.body.setNextKinematicTranslation(
     collider.getWorldPosition(new THREE.Vector3())
   );
