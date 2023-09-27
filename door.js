@@ -10,14 +10,13 @@ import {
 } from "./physics.js";
 
 export let doorScene = null;
+let collider = null;
 
 const maxHeight = 2.3;
 
 export function init() {
   onAllLoaded(function () {
     doorScene = doorGltf.scene;
-
-    let collider = null;
 
     doorScene.children.forEach(function (child) {
       if (child.name === "collider") {
@@ -78,5 +77,7 @@ export function update() {
   if (doorScene.position.y >= maxHeight) return;
 
   doorScene.position.add(new THREE.Vector3(0, 0.008, 0));
-  doorScene.userData.body.setNextKinematicPosition(doorScene.position);
+  doorScene.userData.body.setNextKinematicTranslation(
+    collider.getWorldPosition(new THREE.Vector3())
+  );
 }
