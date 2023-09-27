@@ -5,7 +5,7 @@ import { scene, room, ground } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 import { doorScene as door } from "./door.js";
 
-export let pos = new THREE.Vector3();
+let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
 
 const raycaster = new THREE.Raycaster();
@@ -30,6 +30,10 @@ export function getReferenceSpace() {
   return baseReferenceSpace
     ?.getOffsetReferenceSpace(new XRRigidTransform(undefined, orient))
     ?.getOffsetReferenceSpace(new XRRigidTransform(pos, undefined));
+}
+
+export function worldPos() {
+  return new THREE.Vector3(-pos.x, -pos.y, -pos.z);
 }
 
 export function init() {
