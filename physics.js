@@ -167,22 +167,22 @@ export function update() {
         const collider = body.collider(i);
         const shape = collider.shape;
 
+        // This is in world space, so we use the inverse of the parent body's
+        // transform to get the collider's pos in local space
+        const colliderTranslation = collider.translation();
+
+        tempVec.copy(body.translation());
+        tempQuat.copy(body.rotation());
+
+        tempMatrix.compose(tempVec, tempQuat, ONE);
+        tempMatrix.invert();
+
+        const localPos = new THREE.Vector3()
+          .copy(colliderTranslation)
+          .applyMatrix4(tempMatrix);
+
         if (shape instanceof RAPIER.Cuboid) {
           const mesh = new THREE.Mesh(DEBUG_BOX, DEBUG_MATERIAL);
-
-          // This is in world space, so we use the inverse of the parent body's
-          // transform to get the collider's pos in local space
-          const colliderTranslation = collider.translation();
-
-          tempVec.copy(body.translation());
-          tempQuat.copy(body.rotation());
-
-          tempMatrix.compose(tempVec, tempQuat, ONE);
-          tempMatrix.invert();
-
-          const localPos = new THREE.Vector3()
-            .copy(colliderTranslation)
-            .applyMatrix4(tempMatrix);
 
           mesh.position.copy(localPos);
 
@@ -196,8 +196,7 @@ export function update() {
         } else if (shape instanceof RAPIER.Cylinder) {
           const mesh = new THREE.Mesh(DEBUG_CYLINDER, DEBUG_MATERIAL);
 
-          mesh.position.copy(collider.translation());
-
+          mesh.position.copy(localPos);
           mesh.scale.set(shape.radius, shape.halfHeight * 2, shape.radius);
 
           body.obj.add(mesh);
