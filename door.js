@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { onAllLoaded, doorGltf } from "./models.js";
-import { scene } from "./scene.js";
+import { scene, dirLight, hemiLight } from "./scene.js";
 import {
   onPhysicsLoaded,
   createCuboidBody,
@@ -12,10 +12,19 @@ import {
 export let doorScene = null;
 let collider = null;
 
+const FINAL_DIR_LIGHT_INTENSITY = 0.5;
+const FINAL_HEMI_LIGHT_INTENSITY = 1.0;
+
+let initDirLightIntensity = null;
+let initHemiLightIntensity = null;
+
 const maxHeight = 2.3;
 
 export function init() {
   onAllLoaded(function () {
+    initDirLightIntensity = dirLight.intensity;
+    initHemiLightIntensity = hemiLight.intensity;
+
     doorScene = doorGltf.scene;
 
     doorScene.children.forEach(function (child) {
@@ -27,6 +36,7 @@ export function init() {
 
     doorScene.userData.isOpen = false;
     doorScene.position.set(0, 0.02, 0);
+    doorScene.userData.initY = doorScene.position.y;
     doorScene.castShadow = true;
 
     scene.add(doorScene);
@@ -74,4 +84,13 @@ export function update() {
   doorScene.userData.body.setNextKinematicTranslation(
     collider.getWorldPosition(new THREE.Vector3())
   );
+
+  const t =
+    (doorScene.position.y - doorScene.userData.initY) /
+    (maxHeight - doorScene.userData.initY);
+
+  dirLight.intensity =
+    t * FINAL_DIR_LIGHT_INTENSITY + (1 - t) * initDirLightIntensity;
+  hemiLight.intensity =
+    t * FINAL_HEMI_LIGHT_INTENSITY + (1 - t) * initHemiLightIntensity;
 }

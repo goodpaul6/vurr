@@ -20,8 +20,8 @@ export const camera = new THREE.PerspectiveCamera(
   1000
 );
 
-export const dirLight = new THREE.DirectionalLight(0xffffff, 0.5);
-export const hemiLight = new THREE.HemisphereLight(0xfcebc3, 0x3b653e);
+export const dirLight = new THREE.DirectionalLight(0xffffff, 0.1);
+export const hemiLight = new THREE.HemisphereLight(0xfcebc3, 0x3b653e, 0.1);
 
 export const ROOM_RADIUS = 8;
 
