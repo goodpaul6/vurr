@@ -20,6 +20,8 @@ export function init() {
 
   renderer.xr.enabled = true;
 
+  renderer.xr.setFoveation(0.25);
+
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
