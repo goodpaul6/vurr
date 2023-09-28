@@ -44,6 +44,7 @@ import {
   create as createCarrot,
   update as updateCarrots,
 } from "./carrots.js";
+import { init as initClouds, update as updateClouds } from "./clouds.js";
 
 initPhysics();
 initRenderer();
@@ -57,6 +58,7 @@ initDecor();
 initBushes();
 initDoor();
 initCarrots();
+initClouds();
 
 let stats = null;
 
@@ -116,6 +118,7 @@ function animate(ts) {
   updateBushes(ts);
   updateDoor();
   updateCarrots();
+  updateClouds();
 
   renderer.render(scene, camera);
 
