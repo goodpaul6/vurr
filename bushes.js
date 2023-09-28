@@ -35,9 +35,9 @@ export function init() {
 
       const instance = bushMesh.clone();
 
-      instance.position.copy(v);
+      instance.position.add(v);
       instance.rotation.set(0, Math.random() * Math.PI * 2, 0);
-      instance.scale.y = Math.random() + 1;
+      instance.scale.y *= Math.random() + 1;
 
       bushes.push(instance);
       scene.add(instance);
