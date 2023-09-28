@@ -80,6 +80,7 @@ export function init() {
     // NOTE(Apaar): This is a major GPU fragment optimization
     ground.material = new THREE.MeshPhongMaterial({
       color: ground.material.color,
+      specular: 0x000000,
     });
     scene.add(ground);
 
