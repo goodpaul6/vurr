@@ -59,7 +59,7 @@ export function update(elapsed) {
       0,
       0,
       0,
-      Math.sin(elapsed * 2 + bush.position.x + bush.position.z) * 0.1,
+      Math.sin(elapsed * 4 + bush.position.x + bush.position.z) * 0.1,
       0
     );
     bush.matrix
