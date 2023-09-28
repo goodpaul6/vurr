@@ -108,11 +108,7 @@ function updateBlades(elapsed) {
     // OPTIMIZATION(Apaar): We don't really need to update this, just the matrix, so we skip this.
     // decor.rotation.set(rotX, 0, 0);
 
-    tempMat
-      .makeRotationX(rotX)
-      .scale(decor.scale)
-      .multiply(tempMat2)
-      .setPosition(decor.position);
+    tempMat.makeRotationX(rotX).scale(decor.scale).setPosition(decor.position);
 
     bladesIMesh.setMatrixAt(decor.index, tempMat);
   }

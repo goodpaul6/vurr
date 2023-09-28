@@ -17,14 +17,11 @@ export function init() {
 
     const groundRadius = ground.geometry.boundingSphere.radius * ground.scale.x;
 
-    const bushScene = bushGltf.scene;
-
-    for (const child of bushScene.children) {
-      child.castShadow = true;
-      child.material = new THREE.MeshPhongMaterial({
-        color: child.material.color,
-      });
-    }
+    const bushMesh = bushGltf.scene.children[0];
+    bushMesh.castShadow = true;
+    bushMesh.material = new THREE.MeshPhongMaterial({
+      color: bushMesh.material.color,
+    });
 
     const v = new THREE.Vector3();
 
@@ -36,7 +33,7 @@ export function init() {
         // Min radius around house
       } while (v.distanceToSquared(ZERO) < ROOM_RADIUS * ROOM_RADIUS);
 
-      const instance = bushScene.clone();
+      const instance = bushMesh.clone();
 
       instance.position.copy(v);
       instance.rotation.set(0, Math.random() * Math.PI * 2, 0);
