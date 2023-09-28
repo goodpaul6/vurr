@@ -54,6 +54,7 @@ function create(pos, finalPos) {
     waitTimer: 2,
     stateFn: waitState,
     index: bunnies.length,
+    color: new THREE.Color(0xffffff),
   };
 
   bunnies.push(instance);
@@ -158,6 +159,8 @@ function doHops(bunny, dt) {
 }
 
 function moveState(bunny, dt) {
+  bunny.color.set(0x00ff00);
+
   if (doHops(bunny, dt)) {
     return enterWaitState({
       bunny,
@@ -193,6 +196,8 @@ function enterApproachWaitState({ bunny, waitFor }) {
 }
 
 function approachWaitState(bunny, dt) {
+  bunny.color.set(0xffff00);
+
   if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
     // We are too far away for the bunny to care
     return enterWaitState({
@@ -230,6 +235,8 @@ function enterApproachState({ bunny }) {
 }
 
 function approachState(bunny, dt) {
+  bunny.color.set(0xff00ff);
+
   if (doHops(bunny, dt)) {
     return enterApproachWaitState({ bunny, waitFor: 1 });
   }
@@ -263,6 +270,8 @@ function turnTowardsPlayer(bunny, dt) {
 }
 
 function curiousState(bunny, dt) {
+  bunny.color.set(0x0000ff);
+
   if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
     // We are too far away for the bunny to care
     return enterWaitState({
@@ -287,6 +296,8 @@ function curiousState(bunny, dt) {
 }
 
 function waitState(bunny, dt) {
+  bunny.color.set(0xff0000);
+
   if (bunny.position.distanceTo(playerWorldPos()) < CURIOUS_STATE_CHANGE_DIST) {
     return enterCuriousState({
       bunny,
@@ -311,8 +322,12 @@ export function update(dt) {
     bunny.stateFn = bunny.stateFn(bunny, dt);
 
     tempMatrix.compose(bunny.position, bunny.quaternion, ONE);
+
     bunniesIMesh.setMatrixAt(bunny.index, tempMatrix);
+
+    bunniesIMesh.setColorAt(bunny.index, bunny.color);
   }
 
+  bunniesIMesh.instanceColor.needsUpdate = true;
   bunniesIMesh.instanceMatrix.needsUpdate = true;
 }
