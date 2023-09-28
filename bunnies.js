@@ -3,8 +3,10 @@ import * as THREE from "three";
 import { onAllLoaded, bunnyGltf } from "./models.js";
 import { scene, ground, ROOM_RADIUS } from "./scene.js";
 import { worldPos as playerWorldPos } from "./player.js";
+import { carrots } from "./carrots.js";
 
 const SPEED = 3;
+const CREEP_SPEED = 0.5;
 const TARGET_MAX_DIST = 10;
 const HOP_TILL_GOAL_THRESHOLD = 0.001;
 
@@ -21,6 +23,10 @@ const CURIOUS_STATE_CHANGE_DIST = 6;
 const CURIOUS_MAX_DIST = 7;
 const BEG_WAIT_DIST = 2;
 const BEG_MAX_DIST = 3;
+const NOTICE_CARROT_DIST = 3;
+const NOTICE_CARROT_DIST_MAX = 5;
+const EAT_CARROT_DIST = 0.5;
+const FINAL_POS_DIST = 0.1;
 
 const bunnies = [];
 let bunniesIMesh = null;
@@ -102,6 +108,134 @@ function isBunnyOnGround(bunny) {
   return Math.abs(bunny.position.y - bunny.initY) <= 0.005;
 }
 
+function enterEatCarrotState({ bunny, carrot }) {
+  // remove carrot so no other bunnies can eat it
+  const i = carrots.indexOf(carrot);
+  if (i > -1) {
+    carrots.splice(i, 1);
+  } else {
+    // The carrot left the array before we could eat it - shouldn't be possible
+    throw new Error(
+      "Tried to eat carrot but it was not in the carrots array anymore"
+    );
+  }
+
+  return eatCarrotState;
+}
+
+function eatCarrotState(bunny, dt) {
+  return enterGoToFinalPosState({ bunny });
+}
+
+function enterGoToFinalPosState({ bunny }) {
+  tempVector.subVectors(bunny.position, bunny.finalPos).setY(0);
+  bunny.numHops = Math.floor(tempVector.length() / HOP_LENGTH);
+
+  tempVector.normalize();
+  bunny.hopDirection = tempVector.clone();
+
+  bunny.posBeforeHop = bunny.position.clone();
+  bunny.waitTimer = null;
+
+  return goToFinalPosState;
+}
+
+function goToFinalPosState(bunny, dt) {
+  bunny.color.set(0xffffff);
+
+  if (doHops(bunny, dt)) {
+    return enterCreepToFinalPosState();
+  }
+  return goToFinalPosState;
+}
+
+function enterCreepToFinalPosState() {
+  return creepToFinalPosState;
+}
+
+function creepToFinalPosState(bunny, dt) {
+  bunny.color.set(0xff008a);
+  if (bunny.position.distanceTo(bunny.finalPos) <= FINAL_POS_DIST)
+    return enterFinalPosState();
+
+  tempVector.subVectors(bunny.finalPos, bunny.position).setY(0).normalize();
+
+  const angle = Math.atan2(-tempVector.z, tempVector.x);
+
+  tempVector.multiplyScalar(CREEP_SPEED * dt);
+
+  bunny.position.add(tempVector);
+
+  const destOrient = new THREE.Quaternion().setFromEuler(
+    new THREE.Euler(0, angle, 0, "YXZ")
+  );
+  bunny.quaternion.rotateTowards(destOrient, 10 * dt);
+
+  return creepToFinalPosState;
+}
+
+function enterFinalPosState() {
+  return finalPosState;
+}
+
+function finalPosState(bunny, dt) {
+  bunny.color.set(0x00a3ff);
+
+  return finalPosState;
+}
+
+function enterGoToCarrotState({ bunny, carrot }) {
+  bunny.targetCarrot = carrot;
+
+  tempVector.subVectors(bunny.targetCarrot.position, bunny.position).setY(0);
+  tempVector.normalize();
+
+  bunny.hopDirection = tempVector.clone();
+
+  bunny.numHops = 1;
+
+  bunny.posBeforeHop = bunny.position.clone();
+
+  bunny.waitTimer = null;
+
+  return goToCarrotState;
+}
+
+function goToCarrotState(bunny, dt) {
+  bunny.color.set(0xff8a00);
+  if (
+    !bunny.targetCarrot ||
+    bunny.position.distanceTo(bunny.targetCarrot.position) >
+      NOTICE_CARROT_DIST_MAX
+  ) {
+    // lost interest in the carrot
+    return enterWaitState({
+      bunny,
+      waitFor: 1,
+    });
+  }
+
+  if (doHops(bunny, dt)) {
+    if (
+      bunny.position.distanceTo(bunny.targetCarrot.position) <= EAT_CARROT_DIST
+    ) {
+      return enterEatCarrotState({ bunny, carrot: bunny.targetCarrot });
+    }
+    return enterGoToCarrotState({ bunny, carrot: bunny.targetCarrot });
+  }
+
+  return goToCarrotState;
+}
+
+function findNearbyCarrot(bunny) {
+  for (let carrot of carrots) {
+    if (bunny.position.distanceTo(carrot.position) <= NOTICE_CARROT_DIST) {
+      return carrot;
+    }
+  }
+  return null;
+}
+
 function enterWaitState({ bunny, waitFor }) {
   if (!isBunnyOnGround(bunny)) {
     console.error("Why is the bunny floating????");
@@ -109,6 +243,7 @@ function enterWaitState({ bunny, waitFor }) {
 
   bunny.position.y = bunny.initY;
   bunny.targetPos = null;
+  bunny.targetCarrot = null;
   bunny.waitTimer = waitFor;
 
   return waitState;
@@ -178,6 +313,11 @@ function enterBegState({ bunny }) {
 }
 
 function begState(bunny, dt) {
+  const carrot = findNearbyCarrot(bunny);
+  if (carrot) {
+    return enterGoToCarrotState({ bunny, carrot });
+  }
+
   if (bunny.position.distanceTo(playerWorldPos()) >= BEG_MAX_DIST) {
     return enterApproachState({
       bunny,
@@ -197,6 +337,11 @@ function enterApproachWaitState({ bunny, waitFor }) {
 
 function approachWaitState(bunny, dt) {
   bunny.color.set(0xffff00);
+
+  const carrot = findNearbyCarrot(bunny);
+  if (carrot) {
+    return enterGoToCarrotState({ bunny, carrot });
+  }
 
   if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
     // We are too far away for the bunny to care
@@ -272,6 +417,11 @@ function turnTowardsPlayer(bunny, dt) {
 function curiousState(bunny, dt) {
   bunny.color.set(0x0000ff);
 
+  const carrot = findNearbyCarrot(bunny);
+  if (carrot) {
+    return enterGoToCarrotState({ bunny, carrot });
+  }
+
   if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
     // We are too far away for the bunny to care
     return enterWaitState({
@@ -297,6 +447,11 @@ function curiousState(bunny, dt) {
 
 function waitState(bunny, dt) {
   bunny.color.set(0xff0000);
+
+  const carrot = findNearbyCarrot(bunny);
+  if (carrot) {
+    return enterGoToCarrotState({ bunny, carrot });
+  }
 
   if (bunny.position.distanceTo(playerWorldPos()) < CURIOUS_STATE_CHANGE_DIST) {
     return enterCuriousState({

@@ -13,7 +13,7 @@ import { gamepads } from "./input.js";
 
 let carrotScene = null;
 
-const carrots = [];
+export const carrots = [];
 
 const CAPSULE_HALF_HEIGHT = 0.04;
 const CAPSULE_RADIUS = 0.02;
