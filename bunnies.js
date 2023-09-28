@@ -4,6 +4,7 @@ import { onAllLoaded, bunnyGltf } from "./models.js";
 import { scene, ground, ROOM_RADIUS } from "./scene.js";
 import { worldPos as playerWorldPos } from "./player.js";
 import { carrots } from "./carrots.js";
+import { gamepads } from "./input.js";
 
 const SPEED = 3;
 const CREEP_SPEED = 0.5;
@@ -26,7 +27,8 @@ const BEG_MAX_DIST = 3;
 const NOTICE_CARROT_DIST = 3;
 const NOTICE_CARROT_DIST_MAX = 5;
 const EAT_CARROT_DIST = 0.5;
-const FINAL_POS_DIST = 0.1;
+const FINAL_POS_DIST = 0.2;
+const MAX_CARROT_Y_DIST = 0.4;
 
 const bunnies = [];
 let bunniesIMesh = null;
@@ -128,7 +130,7 @@ function eatCarrotState(bunny, dt) {
 }
 
 function enterGoToFinalPosState({ bunny }) {
-  tempVector.subVectors(bunny.position, bunny.finalPos).setY(0);
+  tempVector.subVectors(bunny.finalPos, bunny.position).setY(0);
   bunny.numHops = Math.floor(tempVector.length() / HOP_LENGTH);
 
   tempVector.normalize();
@@ -230,7 +232,12 @@ function goToCarrotState(bunny, dt) {
 function findNearbyCarrot(bunny) {
   for (let carrot of carrots) {
     if (bunny.position.distanceTo(carrot.position) <= NOTICE_CARROT_DIST) {
-      return carrot;
+      if (
+        Math.abs(tempVector.subVectors(bunny.position, carrot.position).y) <=
+        MAX_CARROT_Y_DIST
+      ) {
+        return carrot;
+      }
     }
   }
   return null;
@@ -318,7 +325,10 @@ function begState(bunny, dt) {
     return enterGoToCarrotState({ bunny, carrot });
   }
 
-  if (bunny.position.distanceTo(playerWorldPos()) >= BEG_MAX_DIST) {
+  if (
+    bunny.position.distanceTo(playerWorldPos()) >= BEG_MAX_DIST ||
+    !playerIsHoldingCarrot()
+  ) {
     return enterApproachState({
       bunny,
     });
@@ -343,8 +353,11 @@ function approachWaitState(bunny, dt) {
     return enterGoToCarrotState({ bunny, carrot });
   }
 
-  if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
-    // We are too far away for the bunny to care
+  if (
+    bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST ||
+    !playerIsHoldingCarrot()
+  ) {
+    // We are too far away for the bunny to care, or we dropped the carrot
     return enterWaitState({
       bunny,
       waitFor: 1,
@@ -422,7 +435,10 @@ function curiousState(bunny, dt) {
     return enterGoToCarrotState({ bunny, carrot });
   }
 
-  if (bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST) {
+  if (
+    bunny.position.distanceTo(playerWorldPos()) >= CURIOUS_MAX_DIST ||
+    !playerIsHoldingCarrot()
+  ) {
     // We are too far away for the bunny to care
     return enterWaitState({
       bunny,
@@ -445,6 +461,13 @@ function curiousState(bunny, dt) {
   });
 }
 
+function playerIsHoldingCarrot() {
+  for (let gamepad of gamepads) {
+    if (gamepad.hasCarrot) return true;
+  }
+  return false;
+}
+
 function waitState(bunny, dt) {
   bunny.color.set(0xff0000);
 
@@ -453,7 +476,10 @@ function waitState(bunny, dt) {
     return enterGoToCarrotState({ bunny, carrot });
   }
 
-  if (bunny.position.distanceTo(playerWorldPos()) < CURIOUS_STATE_CHANGE_DIST) {
+  if (
+    playerIsHoldingCarrot() &&
+    bunny.position.distanceTo(playerWorldPos()) < CURIOUS_STATE_CHANGE_DIST
+  ) {
     return enterCuriousState({
       bunny,
       waitFor: 3,

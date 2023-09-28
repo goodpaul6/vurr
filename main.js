@@ -108,7 +108,6 @@ function animate(ts) {
     return;
   }
 
-  updatePhysics();
   updateScene(ts);
   updateInput();
   updatePlayer();
@@ -126,3 +125,4 @@ function animate(ts) {
 }
 
 renderer.setAnimationLoop(animate);
+setInterval(updatePhysics, 1000 / 60);
