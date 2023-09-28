@@ -79,7 +79,7 @@ onAllLoaded(function () {
     new THREE.Color(0xe07a36),
     function (pressedControllers) {
       tap(pressedControllers);
-      createCarrot(new THREE.Vector3(0, 1.5, -1));
+      createCarrot(new THREE.Vector3(0, 1.5, 0));
     }
   );
 
@@ -109,7 +109,7 @@ function animate(ts) {
   }
 
   updatePhysics();
-  updateScene();
+  updateScene(ts);
   updateInput();
   updatePlayer();
   updateBunnies(dt);

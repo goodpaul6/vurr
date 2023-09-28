@@ -31,6 +31,8 @@ export let room = null;
 export let groundBody = null;
 export let roomBody = null;
 
+let roomText = null;
+
 const controllerModelFactory = new XRControllerModelFactory();
 
 export function init() {
@@ -105,6 +107,16 @@ export function init() {
         position: room.position.clone(),
       });
 
+      roomText = room.children.find(function (child) {
+        return child.name === "title";
+      });
+
+      roomText.material = new THREE.MeshBasicMaterial({
+        color: roomText.material.color,
+      });
+
+      roomText.userData.initY = roomText.position.y;
+
       for (const mesh of room.children) {
         const min = mesh.geometry.boundingBox.min;
         const max = mesh.geometry.boundingBox.max;
@@ -134,7 +146,9 @@ export function init() {
   });
 }
 
-export function update() {
+export function update(elapsed) {
+  roomText.position.y = Math.sin(elapsed * 4) * 0.1 + roomText.userData.initY;
+
   if (!PHYSICS_DEBUG_MODE) {
     return;
   }
