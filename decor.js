@@ -98,22 +98,21 @@ export function init() {
 
 function updateBlades(elapsed) {
   const tempMat = new THREE.Matrix4();
-  const tempMat2 = new THREE.Matrix4();
 
   for (const decor of blades) {
-    decor.rotation.set(
+    const rotX =
       (Math.sin(elapsed * 4 + decor.position.x + decor.position.z) * Math.PI) /
         8 +
-        Math.PI / 2,
-      0,
-      0
-    );
+      Math.PI / 2;
 
-    tempMat2.makeScale(decor.scale.x, decor.scale.y, decor.scale.z);
+    // OPTIMIZATION(Apaar): We don't really need to update this, just the matrix, so we skip this.
+    // decor.rotation.set(rotX, 0, 0);
 
-    tempMat.makeRotationFromEuler(decor.rotation);
-    tempMat.multiply(tempMat2);
-    tempMat.setPosition(decor.position);
+    tempMat
+      .makeRotationX(rotX)
+      .scale(decor.scale)
+      .multiply(tempMat2)
+      .setPosition(decor.position);
 
     bladesIMesh.setMatrixAt(decor.index, tempMat);
   }

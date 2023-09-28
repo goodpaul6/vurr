@@ -49,8 +49,8 @@ export function init() {
 
   dirLight.position.set(10, 10, 10);
   dirLight.castShadow = true;
-  dirLight.shadow.mapSize.width = 1024;
-  dirLight.shadow.mapSize.height = 1024;
+  dirLight.shadow.mapSize.width = 512;
+  dirLight.shadow.mapSize.height = 512;
   dirLight.shadow.camera.near = 0.5;
   dirLight.shadow.camera.far = 500;
   dirLight.shadow.camera.left = -20;
