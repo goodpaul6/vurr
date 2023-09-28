@@ -212,7 +212,7 @@ function approachWaitState(bunny, dt) {
     return approachWaitState;
   }
 
-  return approachState;
+  return enterApproachState({ bunny });
 }
 
 function enterApproachState({ bunny }) {
