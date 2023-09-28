@@ -86,10 +86,12 @@ export function init() {
 }
 
 export function openDoor() {
-  doorScene.userData.isOpen = true;
+  if (!doorScene.userData.isOpen) {
+    collider.userData.sound.setLoop(true);
+    collider.userData.sound.play();
+  }
 
-  collider.userData.sound.setLoop(true);
-  collider.userData.sound.play();
+  doorScene.userData.isOpen = true;
 }
 
 export function update() {
