@@ -155,6 +155,7 @@ function enterEatCarrotState({ bunny }) {
   }
 
   bunny.carrot = carrot;
+  bunny.isSentToFinalPos = true;
 
   return eatCarrotState;
 }
