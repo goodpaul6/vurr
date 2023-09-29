@@ -9,6 +9,8 @@ import { allBunniesSentToFinalPos } from "./bunnies.js";
 let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
 
+const FINAL_POS = new THREE.Vector3(0, -40, -20);
+
 const raycaster = new THREE.Raycaster();
 
 const DEBUG_MODE = true;
@@ -65,8 +67,11 @@ export function init() {
 
 export function update(dt) {
   if (allBunniesSentToFinalPos()) {
-    if (pos.y > -20) {
-      pos.y -= 1 * dt;
+    if (pos.distanceTo(FINAL_POS) > 0.1) {
+      pos.addScaledVector(
+        new THREE.Vector3().subVectors(FINAL_POS, pos).normalize(),
+        dt
+      );
     }
   }
 
