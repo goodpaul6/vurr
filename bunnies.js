@@ -219,6 +219,7 @@ function creepToFinalPosState(bunny, dt) {
 
 function enterFinalPosState({ bunny }) {
   bunny.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
+  bunny.position.copy(bunny.finalPos);
 
   return finalPosState;
 }
