@@ -9,7 +9,7 @@ import { allBunniesSentToFinalPos } from "./bunnies.js";
 let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
 
-const FINAL_POS = new THREE.Vector3(0, -40, -20);
+const FINAL_POS = new THREE.Vector3(0, -35, -20);
 
 const raycaster = new THREE.Raycaster();
 
