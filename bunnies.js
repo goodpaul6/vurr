@@ -143,18 +143,28 @@ function enterEatCarrotState({ bunny }) {
   return eatCarrotState;
 }
 
+/* Randomize array in-place using Durstenfeld shuffle algorithm */
+function shuffleArray(array) {
+  for (var i = array.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+}
+
 function eatCarrotState(bunny, dt) {
   // Randomly assign ~10 bunnies to go to their final positions
   let notFinalPosBunnies = bunnies.filter(function (b) {
     return b.stateFn !== finalPosState;
   });
-  let randomBunnies = [];
-  for (let i = 0; i < 10; i++) {
-    randomBunnies.push(Math.floor(Math.random() * notFinalPosBunnies.length));
-  }
+  let shuffledBunnies = [...notFinalPosBunnies];
+  shuffleArray(shuffledBunnies);
 
-  for (let i of randomBunnies) {
-    bunnies[i].isSentToFinalPos = true;
+  shuffledBunnies = shuffledBunnies.slice(0, 29);
+
+  for (let bunny of shuffledBunnies) {
+    bunny.isSentToFinalPos = true;
   }
 
   return enterGoToFinalPosState({ bunny });
@@ -189,7 +199,7 @@ function enterCreepToFinalPosState() {
 function creepToFinalPosState(bunny, dt) {
   bunny.color.set(0xff008a);
   if (bunny.position.distanceTo(bunny.finalPos) <= FINAL_POS_DIST)
-    return enterFinalPosState();
+    return enterFinalPosState({ bunny });
 
   tempVector.subVectors(bunny.finalPos, bunny.position).setY(0).normalize();
 
@@ -207,7 +217,9 @@ function creepToFinalPosState(bunny, dt) {
   return creepToFinalPosState;
 }
 
-function enterFinalPosState() {
+function enterFinalPosState({ bunny }) {
+  bunny.quaternion.setFromEuler(new THREE.Euler(0, 0, 0));
+
   return finalPosState;
 }
 
@@ -568,7 +580,7 @@ export function update(dt) {
     bunniesIMesh.setColorAt(bunny.index, bunny.color);
 
     if (bunny.carrot) {
-      bunny.carrot.position.set(0.27, 0, -0.08).applyMatrix4(tempMatrix);
+      bunny.carrot.position.set(0.26, 0, -0.08).applyMatrix4(tempMatrix);
     }
   }
 
