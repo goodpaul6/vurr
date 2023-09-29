@@ -4,6 +4,7 @@ import { baseReferenceSpace } from "./renderer.js";
 import { scene, room, ground } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 import { doorScene as door } from "./door.js";
+import { allBunniesSentToFinalPos } from "./bunnies.js";
 
 let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
@@ -62,7 +63,13 @@ export function init() {
   }
 }
 
-export function update() {
+export function update(dt) {
+  if (allBunniesSentToFinalPos()) {
+    if (pos.y > -20) {
+      pos.y -= 1 * dt;
+    }
+  }
+
   teleportIntersection = null;
 
   for (const controller of controllers) {
@@ -118,7 +125,10 @@ export function update() {
       continue;
     }
 
-    if ((gamepad.lastAxesValue < 0 && value < 0) || (gamepad.lastAxesValue > 0 && value > 0)) {
+    if (
+      (gamepad.lastAxesValue < 0 && value < 0) ||
+      (gamepad.lastAxesValue > 0 && value > 0)
+    ) {
       continue;
     }
 

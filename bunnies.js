@@ -138,8 +138,6 @@ function enterEatCarrotState({ bunny }) {
 
   bunny.carrot = carrot;
 
-  carrot.rotation.set(0, 0, Math.PI / 2);
-
   return eatCarrotState;
 }
 
@@ -581,10 +579,17 @@ export function update(dt) {
     bunniesIMesh.setColorAt(bunny.index, bunny.color);
 
     if (bunny.carrot) {
-      bunny.carrot.position.set(0.26, 0, -0.08).applyMatrix4(tempMatrix);
+      bunny.carrot.position.set(0.24, 0, -0.08).applyMatrix4(tempMatrix);
+      bunny.carrot.quaternion.copy(bunny.quaternion);
     }
   }
 
   bunniesIMesh.instanceColor.needsUpdate = true;
   bunniesIMesh.instanceMatrix.needsUpdate = true;
+}
+
+export function allBunniesSentToFinalPos() {
+  return bunnies.every(function (bunny) {
+    return bunny.isSentToFinalPos;
+  });
 }

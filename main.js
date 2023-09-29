@@ -124,7 +124,7 @@ function animate(ts) {
 
   updateScene(ts);
   updateInput();
-  updatePlayer();
+  updatePlayer(dt);
   updateBunnies(dt);
   updateDecor(ts);
   updateButtons();
