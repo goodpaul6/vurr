@@ -103,7 +103,7 @@ export function init() {
           .setY(0)
           .normalize();
 
-        const startPos = randomDirection.multiplyScalar(randomDist);
+        const startPos = randomDirection.multiplyScalar(randomDist).setY(0.16);
 
         const finalPos = new THREE.Vector3(x * 0.6 - 9, 0.16, y * 0.6 + 9);
 
