@@ -77,6 +77,10 @@ function createBody(position, quat, mass, colliderDesc) {
   return body;
 }
 
+export function removeBody(body) {
+  world.removeRigidBody(body);
+}
+
 export function createCuboidBody({
   hx,
   hy,
