@@ -155,6 +155,10 @@ export function forEachBody(fn) {
 }
 
 export function update() {
+  if (!world) {
+    return;
+  }
+
   if (DEBUG_MODE) {
     for (const body of bodies) {
       if (body.obj) {
