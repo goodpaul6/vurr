@@ -56,6 +56,7 @@ export function create(pos) {
   instance.position.copy(pos);
   instance.userData.body = body;
   instance.userData.heldByGamepad = null;
+  instance.userData.isEaten = false;
 
   const capsule = new THREE.Mesh(geom, mat);
   capsule.position.copy(CAPSULE_OFFSET);
@@ -71,6 +72,7 @@ export function update() {
   const tempQuat = new THREE.Quaternion();
 
   for (const carrot of carrots) {
+    if (carrot.userData.isEaten) continue;
     const carrotWorldPos = carrot.getWorldPosition(new THREE.Vector3());
 
     for (const gamepad of gamepads) {

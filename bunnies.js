@@ -5,6 +5,7 @@ import { scene, ground, ROOM_RADIUS } from "./scene.js";
 import { worldPos as playerWorldPos } from "./player.js";
 import { carrots } from "./carrots.js";
 import { gamepads } from "./input.js";
+import { removeBody } from "./physics.js";
 
 const SPEED = 3;
 const CREEP_SPEED = 0.5;
@@ -63,6 +64,7 @@ function create(pos, finalPos) {
     stateFn: waitState,
     index: bunnies.length,
     color: new THREE.Color(0xffffff),
+    carrot: null,
   };
 
   bunnies.push(instance);
@@ -76,19 +78,19 @@ export function init() {
   onAllLoaded(function () {
     const lines = HBD_STRING.split("\n");
 
-    create(new THREE.Vector3(10, 0.16, 10), new THREE.Vector3(0, 0, 0));
-    // for (let y = 0; y < lines.length; ++y) {
-    //   const line = lines[y];
-    //   for (let x = 0; x < line.length; ++x) {
-    //     if (line[x] !== "*") {
-    //       continue;
-    //     }
+    // create(new THREE.Vector3(10, 0.16, 10), new THREE.Vector3(0, 0, 0));
+    for (let y = 0; y < lines.length; ++y) {
+      const line = lines[y];
+      for (let x = 0; x < line.length; ++x) {
+        if (line[x] !== "*") {
+          continue;
+        }
 
-    //     const finalPos = new THREE.Vector3(x * 0.6 - 9, 0.16, y * 0.6 + 9);
+        const finalPos = new THREE.Vector3(x * 0.6 - 9, 0.16, y * 0.6 + 9);
 
-    //     create(finalPos, finalPos);
-    //   }
-    // }
+        create(finalPos, finalPos);
+      }
+    }
 
     const bunnyMesh = bunnyGltf.scene.children[0];
 
@@ -110,17 +112,30 @@ function isBunnyOnGround(bunny) {
   return Math.abs(bunny.position.y - bunny.initY) <= 0.005;
 }
 
-function enterEatCarrotState({ bunny, carrot }) {
-  // remove carrot so no other bunnies can eat it
-  const i = carrots.indexOf(carrot);
-  if (i > -1) {
-    carrots.splice(i, 1);
-  } else {
+function enterEatCarrotState({ bunny }) {
+  // check if carrot is eaten
+  let carrot = bunny.targetCarrot;
+
+  if (carrot.isEaten) {
     // The carrot left the array before we could eat it - shouldn't be possible
-    throw new Error(
+    console.error(
       "Tried to eat carrot but it was not in the carrots array anymore"
     );
   }
+
+  // Remove the carrot's physics body so its motion is no longer dictated by it
+  removeBody(carrot.userData.body);
+  carrot.userData.body = null;
+
+  carrot.userData.isEaten = true;
+
+  let gamepad = carrot.userData.heldByGamepad;
+  if (gamepad) {
+    gamepad.hasCarrot = false;
+    carrot.userData.heldByGamepad = null;
+  }
+
+  bunny.carrot = carrot;
 
   return eatCarrotState;
 }
@@ -206,7 +221,7 @@ function enterGoToCarrotState({ bunny, carrot }) {
 function goToCarrotState(bunny, dt) {
   bunny.color.set(0xff8a00);
   if (
-    !bunny.targetCarrot ||
+    bunny.targetCarrot.userData.isEaten ||
     bunny.position.distanceTo(bunny.targetCarrot.position) >
       NOTICE_CARROT_DIST_MAX
   ) {
@@ -221,7 +236,7 @@ function goToCarrotState(bunny, dt) {
     if (
       bunny.position.distanceTo(bunny.targetCarrot.position) <= EAT_CARROT_DIST
     ) {
-      return enterEatCarrotState({ bunny, carrot: bunny.targetCarrot });
+      return enterEatCarrotState({ bunny });
     }
     return enterGoToCarrotState({ bunny, carrot: bunny.targetCarrot });
   }
@@ -231,7 +246,10 @@ function goToCarrotState(bunny, dt) {
 
 function findNearbyCarrot(bunny) {
   for (let carrot of carrots) {
-    if (bunny.position.distanceTo(carrot.position) <= NOTICE_CARROT_DIST) {
+    if (
+      !carrot.userData.isEaten &&
+      bunny.position.distanceTo(carrot.position) <= NOTICE_CARROT_DIST
+    ) {
       if (
         Math.abs(tempVector.subVectors(bunny.position, carrot.position).y) <=
         MAX_CARROT_Y_DIST
@@ -507,6 +525,10 @@ export function update(dt) {
     bunniesIMesh.setMatrixAt(bunny.index, tempMatrix);
 
     bunniesIMesh.setColorAt(bunny.index, bunny.color);
+
+    if (bunny.carrot) {
+      bunny.carrot.position.set(0.286, 0, 0).applyMatrix4(tempMatrix);
+    }
   }
 
   bunniesIMesh.instanceColor.needsUpdate = true;
