@@ -2,7 +2,13 @@ import * as THREE from "three";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 
 import { renderer } from "./renderer.js";
-import { onAllLoaded, groundGltf, roomGltf, skyboxGltf } from "./models.js";
+import {
+  onAllLoaded,
+  groundGltf,
+  roomGltf,
+  skyboxGltf,
+  mountainGltf,
+} from "./models.js";
 import {
   onPhysicsLoaded,
   createCylinderBody,
@@ -31,6 +37,8 @@ export let room = null;
 export let skybox = null;
 export let groundBody = null;
 export let roomBody = null;
+
+export const mountains = [];
 
 let roomText = null;
 
@@ -90,7 +98,7 @@ export function init() {
     room = roomGltf.scene;
     room.position.set(0, 0.02, 0);
     for (const child of room.children) {
-      child.castShadow = true;
+      if (child.name) child.castShadow = true;
     }
     scene.add(room);
 
@@ -104,6 +112,15 @@ export function init() {
     skybox.scale.set(50, 50, 50);
 
     scene.add(skybox);
+
+    const mountainMesh = mountainGltf.scene.children[0];
+    mountainMesh.material = new THREE.MeshBasicMaterial({
+      vertexColors: true,
+    });
+    mountainMesh.position.set(50, 20, 40);
+    mountainMesh.scale.set(40, 40, 40);
+
+    scene.add(mountainMesh);
 
     onPhysicsLoaded(function () {
       // FIXME(Apaar): For some reason the debug geometry for this shows up correctly but
