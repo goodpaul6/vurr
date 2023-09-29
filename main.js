@@ -65,6 +65,9 @@ window.addEventListener("keydown", function (event) {
   if (event.key === "q") {
     openDoor();
   }
+  if (event.key === "c") {
+    createCarrot(new THREE.Vector3(0, 1.5, 0));
+  }
 });
 
 onAllLoaded(function () {

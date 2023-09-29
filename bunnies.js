@@ -65,6 +65,7 @@ function create(pos, finalPos) {
     index: bunnies.length,
     color: new THREE.Color(0xffffff),
     carrot: null,
+    isSentToFinalPos: false,
   };
 
   bunnies.push(instance);
@@ -137,10 +138,25 @@ function enterEatCarrotState({ bunny }) {
 
   bunny.carrot = carrot;
 
+  carrot.rotation.set(0, 0, Math.PI / 2);
+
   return eatCarrotState;
 }
 
 function eatCarrotState(bunny, dt) {
+  // Randomly assign ~10 bunnies to go to their final positions
+  let notFinalPosBunnies = bunnies.filter(function (b) {
+    return b.stateFn !== finalPosState;
+  });
+  let randomBunnies = [];
+  for (let i = 0; i < 10; i++) {
+    randomBunnies.push(Math.floor(Math.random() * notFinalPosBunnies.length));
+  }
+
+  for (let i of randomBunnies) {
+    bunnies[i].isSentToFinalPos = true;
+  }
+
   return enterGoToFinalPosState({ bunny });
 }
 
@@ -489,6 +505,10 @@ function playerIsHoldingCarrot() {
 function waitState(bunny, dt) {
   bunny.color.set(0xff0000);
 
+  if (bunny.isSentToFinalPos) {
+    return enterGoToFinalPosState({ bunny });
+  }
+
   const carrot = findNearbyCarrot(bunny);
   if (carrot) {
     return enterGoToCarrotState({ bunny, carrot });
@@ -509,10 +529,31 @@ function waitState(bunny, dt) {
     return waitState;
   }
 
+  let hopDirection = new THREE.Vector3().randomDirection().setY(0);
+  let numHops = Math.floor(Math.random() * 5 + 1);
+
+  tempVector.copy(hopDirection);
+  tempVector.multiplyScalar(numHops * HOP_LENGTH);
+  tempVector.add(bunny.position);
+
+  const bunnyGoingInsideRoom =
+    tempVector.distanceTo(ground.position) < MIN_DIST_FROM_GROUND_CENTER &&
+    bunny.position.distanceTo(ground.position) >
+      tempVector.distanceTo(ground.position);
+
+  const bunnyLeavingField =
+    tempVector.distanceTo(ground.position) > MAX_DIST_FROM_GROUND_CENTER &&
+    bunny.position.distanceTo(ground.position) <
+      tempVector.distanceTo(ground.position);
+
+  if (bunnyGoingInsideRoom || bunnyLeavingField) {
+    hopDirection.negate();
+  }
+
   return enterMoveState({
     bunny,
-    hopDirection: new THREE.Vector3().randomDirection().setY(0),
-    numHops: Math.floor(Math.random() * 5 + 1),
+    hopDirection,
+    numHops,
   });
 }
 
@@ -527,7 +568,7 @@ export function update(dt) {
     bunniesIMesh.setColorAt(bunny.index, bunny.color);
 
     if (bunny.carrot) {
-      bunny.carrot.position.set(0.286, 0, 0).applyMatrix4(tempMatrix);
+      bunny.carrot.position.set(0.27, 0, 0.08).applyMatrix4(tempMatrix);
     }
   }
 
