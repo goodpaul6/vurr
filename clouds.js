@@ -3,9 +3,9 @@ import { cloudGltf, onAllLoaded } from "./models.js";
 import { dirLight, scene } from "./scene.js";
 
 const CLOUD_COUNT = 10;
-const CLOUD_BASE_Y = 15;
+const CLOUD_BASE_Y = 20;
 const CLOUD_CLIMB_Y = 20;
-const CLOUD_DISTRIBUTION_RADIUS = 35;
+const CLOUD_DISTRIBUTION_RADIUS = 40;
 
 const clouds = [];
 

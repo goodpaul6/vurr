@@ -60,6 +60,13 @@ initDoor();
 initCarrots();
 initClouds();
 
+// HACK(Apaar): Debug code
+window.addEventListener("keydown", function (event) {
+  if (event.key === "q") {
+    openDoor();
+  }
+});
+
 onAllLoaded(function () {
   createButton(
     new THREE.Vector3(3.5, 0, 0),

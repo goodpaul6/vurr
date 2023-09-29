@@ -2,7 +2,13 @@ import * as THREE from "three";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 
 import { renderer } from "./renderer.js";
-import { onAllLoaded, groundGltf, roomGltf, skyboxGltf } from "./models.js";
+import {
+  onAllLoaded,
+  groundGltf,
+  roomGltf,
+  skyboxGltf,
+  valleyGltf,
+} from "./models.js";
 import {
   onPhysicsLoaded,
   createCylinderBody,
@@ -29,6 +35,7 @@ export const ROOM_RADIUS = 8;
 export let ground = null;
 export let room = null;
 export let skybox = null;
+export let valley = null;
 export let groundBody = null;
 export let roomBody = null;
 
@@ -104,6 +111,19 @@ export function init() {
     skybox.scale.set(50, 50, 50);
 
     scene.add(skybox);
+
+    valley = valleyGltf.scene;
+    valley.scale.set(15, 15, 15);
+    valley.position.set(0, -17, 0);
+
+    for (const child of valley.children) {
+      child.material = new THREE.MeshPhongMaterial({
+        map: child.material.map,
+        color: child.material.color,
+      });
+    }
+
+    scene.add(valley);
 
     onPhysicsLoaded(function () {
       // FIXME(Apaar): For some reason the debug geometry for this shows up correctly but

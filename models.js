@@ -18,6 +18,7 @@ export let bushGltf = null;
 export let carrotGltf = null;
 export let cloudGltf = null;
 export let skyboxGltf = null;
+export let valleyGltf = null;
 
 export let buttonClickSoundBuffer = null;
 export let doorOpenLoopSoundBuffer = null;
@@ -68,6 +69,10 @@ export function init() {
     skyboxGltf = gltf;
   });
 
+  gltfLoader.load("public/valley.glb", function (gltf) {
+    valleyGltf = gltf;
+  });
+
   audioLoader.load("public/button_click.ogg", function (buffer) {
     buttonClickSoundBuffer = buffer;
   });
@@ -94,6 +99,7 @@ export function allLoaded() {
     flowerGltf &&
     cloudGltf &&
     skyboxGltf &&
+    valleyGltf &&
     buttonClickSoundBuffer &&
     doorOpenLoopSoundBuffer &&
     doorOpenClickSoundBuffer
