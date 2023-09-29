@@ -594,7 +594,7 @@ export function update(dt) {
 
     bunniesIMesh.setMatrixAt(bunny.index, tempMatrix);
 
-    bunniesIMesh.setColorAt(bunny.index, bunny.color);
+    // bunniesIMesh.setColorAt(bunny.index, bunny.color);
 
     if (bunny.carrot) {
       bunny.carrot.position.set(0.24, 0, -0.08).applyMatrix4(tempMatrix);
@@ -603,7 +603,9 @@ export function update(dt) {
   }
 
   if (bunnies.length > 0) {
-    bunniesIMesh.instanceColor.needsUpdate = true;
+    if (bunniesIMesh.intanceColor) {
+      bunniesIMesh.instanceColor.needsUpdate = true;
+    }
     bunniesIMesh.instanceMatrix.needsUpdate = true;
   }
 }
