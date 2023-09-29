@@ -42,7 +42,7 @@ export function init() {
     const sound = new THREE.PositionalAudio(listener);
     collider.userData.sound = sound;
 
-    sound.setRefDistance(8);
+    sound.setRefDistance(20);
     sound.setBuffer(doorOpenLoopSoundBuffer);
 
     collider.add(sound);

@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { XRControllerModelFactory } from "three/addons/webxr/XRControllerModelFactory.js";
 
 import { renderer } from "./renderer.js";
-import { onAllLoaded, groundGltf, roomGltf } from "./models.js";
+import { onAllLoaded, groundGltf, roomGltf, skyboxGltf } from "./models.js";
 import {
   onPhysicsLoaded,
   createCylinderBody,
@@ -28,6 +28,7 @@ export const ROOM_RADIUS = 8;
 
 export let ground = null;
 export let room = null;
+export let skybox = null;
 export let groundBody = null;
 export let roomBody = null;
 
@@ -92,6 +93,17 @@ export function init() {
       child.castShadow = true;
     }
     scene.add(room);
+
+    skybox = skyboxGltf.scene.children[0];
+    skybox.material = new THREE.MeshBasicMaterial({
+      vertexColors: true,
+      side: THREE.BackSide,
+      depthWrite: false,
+    });
+    skybox.position.setY(20);
+    skybox.scale.set(50, 50, 50);
+
+    scene.add(skybox);
 
     onPhysicsLoaded(function () {
       // FIXME(Apaar): For some reason the debug geometry for this shows up correctly but
