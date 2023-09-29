@@ -60,8 +60,6 @@ initDoor();
 initCarrots();
 initClouds();
 
-let stats = null;
-
 onAllLoaded(function () {
   createButton(
     new THREE.Vector3(3.5, 0, 0),
@@ -82,23 +80,29 @@ onAllLoaded(function () {
       createCarrot(new THREE.Vector3(0, 1.5, 0));
     }
   );
-
-  stats = new Stats();
-
-  stats.showPanel(0);
-
-  document.body.appendChild(stats.dom);
 });
 
 let lastTS = 0;
 
 const maxDt = 0.04;
 
+let frames = 0;
+let timeSinceLastLoggedFrames = 0;
+
 function animate(ts) {
   ts /= 1000;
 
   const dt = Math.min(ts - lastTS, maxDt);
   lastTS = ts;
+
+  frames += 1;
+  timeSinceLastLoggedFrames += dt;
+
+  if (timeSinceLastLoggedFrames >= 1) {
+    console.log("FPS: ", frames);
+    frames = 0;
+    timeSinceLastLoggedFrames -= 1;
+  }
 
   updateModels();
 
@@ -120,8 +124,6 @@ function animate(ts) {
   updateClouds();
 
   renderer.render(scene, camera);
-
-  stats.update();
 }
 
 renderer.setAnimationLoop(animate);
