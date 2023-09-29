@@ -78,7 +78,6 @@ export function init() {
 
   onAllLoaded(function () {
     const lines = HBD_STRING.split("\n");
-    /*
 
     // create(new THREE.Vector3(10, 0.16, 10), new THREE.Vector3(0, 0, 0));
     for (let y = 0; y < lines.length; ++y) {
@@ -111,7 +110,6 @@ export function init() {
         create(startPos, finalPos);
       }
     }
-*/
 
     const bunnyMesh = bunnyGltf.scene.children[0];
 
