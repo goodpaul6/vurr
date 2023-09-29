@@ -87,9 +87,27 @@ export function init() {
           continue;
         }
 
+        // Set to some random distance in between the max and min dist from
+        // ground centre, adding 2 to prevent bunnies from getting in the room
+        const randomDist =
+          Math.random() *
+            (MAX_DIST_FROM_GROUND_CENTER - MIN_DIST_FROM_GROUND_CENTER) +
+          MIN_DIST_FROM_GROUND_CENTER +
+          2;
+
+        // Set to a random direction (in the XZ plane)
+        // Need to normalize since after setting y to 0, it's no longer a
+        // unit vector
+        const randomDirection = tempVector
+          .randomDirection()
+          .setY(0)
+          .normalize();
+
+        const startPos = randomDirection.multiplyScalar(randomDist);
+
         const finalPos = new THREE.Vector3(x * 0.6 - 9, 0.16, y * 0.6 + 9);
 
-        create(finalPos, finalPos);
+        create(startPos, finalPos);
       }
     }
 
