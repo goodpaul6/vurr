@@ -568,7 +568,7 @@ export function update(dt) {
     bunniesIMesh.setColorAt(bunny.index, bunny.color);
 
     if (bunny.carrot) {
-      bunny.carrot.position.set(0.27, 0, 0.08).applyMatrix4(tempMatrix);
+      bunny.carrot.position.set(0.27, 0, -0.08).applyMatrix4(tempMatrix);
     }
   }
 
