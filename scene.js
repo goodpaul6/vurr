@@ -55,7 +55,7 @@ export function init() {
 
   camera.add(listener);
 
-  dirLight.position.set(10, 10, 10);
+  dirLight.position.set(10, 13, 10);
   dirLight.castShadow = true;
   dirLight.shadow.mapSize.width = 512;
   dirLight.shadow.mapSize.height = 512;
@@ -107,7 +107,7 @@ export function init() {
       side: THREE.BackSide,
       depthWrite: false,
     });
-    skybox.position.setY(20);
+    skybox.position.setY(25);
     skybox.scale.set(50, 50, 50);
 
     scene.add(skybox);
@@ -117,7 +117,7 @@ export function init() {
     valley.position.set(0, -17, 0);
 
     for (const child of valley.children) {
-      child.material = new THREE.MeshPhongMaterial({
+      child.material = new THREE.MeshLambertMaterial({
         map: child.material.map,
         color: child.material.color,
       });
