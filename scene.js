@@ -113,8 +113,8 @@ export function init() {
     scene.add(skybox);
 
     valley = valleyGltf.scene;
-    valley.scale.set(15, 15, 15);
-    valley.position.set(0, -17, 0);
+    valley.scale.set(40, 40, 40);
+    valley.position.set(0, -60, 0);
 
     for (const child of valley.children) {
       child.material = new THREE.MeshLambertMaterial({
