@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
-import { onAllLoaded, bunnyGltf } from "./models.js";
-import { scene, ground, ROOM_RADIUS } from "./scene.js";
+import { onAllLoaded, bunnyGltf, buttonClickSoundBuffer } from "./models.js";
+import { scene, ground, ROOM_RADIUS, isInsideRoom } from "./scene.js";
 import { worldPos as playerWorldPos } from "./player.js";
 import { carrots } from "./carrots.js";
 import { gamepads } from "./input.js";
@@ -292,18 +292,26 @@ function goToCarrotState(bunny, dt) {
 
 function findNearbyCarrot(bunny) {
   for (let carrot of carrots) {
+    if (carrot.userData.isEaten) {
+      continue;
+    }
+
+    if (isInsideRoom(carrot.position)) {
+      continue;
+    }
+
+    if (bunny.position.distanceTo(carrot.position) > NOTICE_CARROT_DIST) {
+      continue;
+    }
+
     if (
-      !carrot.userData.isEaten &&
-      bunny.position.distanceTo(carrot.position) <= NOTICE_CARROT_DIST
+      Math.abs(tempVector.subVectors(bunny.position, carrot.position).y) <=
+      MAX_CARROT_Y_DIST
     ) {
-      if (
-        Math.abs(tempVector.subVectors(bunny.position, carrot.position).y) <=
-        MAX_CARROT_Y_DIST
-      ) {
-        return carrot;
-      }
+      return carrot;
     }
   }
+
   return null;
 }
 

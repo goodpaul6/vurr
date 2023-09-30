@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { baseReferenceSpace } from "./renderer.js";
-import { scene, ground, playOutro } from "./scene.js";
+import { scene, ground, playOutro, isInsideRoom } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 import { doorScene as door } from "./door.js";
 import { allBunniesSentToFinalPos } from "./bunnies.js";
@@ -109,14 +109,11 @@ export function update(dt) {
 
       if (!door.userData.isOpen && !DEBUG_MODE) {
         // If the teleport destination is too close to the edge of the room box, don't let the player teleport there
-        if (
-          Math.abs(teleportIntersection.x) > 4 ||
-          Math.abs(teleportIntersection.z) > 3
-        ) {
-          teleportIntersection = null;
-        } else {
+        if (isInsideRoom(teleportIntersection)) {
           // Set the height a little higher so we can see it inside the room
           teleportIntersection.setY(0.04);
+        } else {
+          teleportIntersection = null;
         }
       }
     }

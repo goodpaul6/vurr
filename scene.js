@@ -208,3 +208,11 @@ export function playOutro() {
   outroAudio.setLoop(false);
   outroAudio.play();
 }
+
+// NOTE: Only checks X and Z
+export function isInsideRoom(vec3) {
+  return (
+    Math.abs(vec3.x) <= 4 &&
+    Math.abs(vec3.z) <= 3
+  );
+}
