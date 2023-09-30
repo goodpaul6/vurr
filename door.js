@@ -132,5 +132,5 @@ export function update() {
   hemiLight.intensity =
     t * FINAL_HEMI_LIGHT_INTENSITY + (1 - t) * initHemiLightIntensity;
 
-  ambienceAudio.setVolume(t * 0.7);
+  ambienceAudio.setVolume(t);
 }
