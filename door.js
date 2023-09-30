@@ -6,7 +6,14 @@ import {
   doorOpenLoopSoundBuffer,
   doorOpenClickSoundBuffer,
 } from "./models.js";
-import { scene, dirLight, hemiLight, listener } from "./scene.js";
+import {
+  scene,
+  dirLight,
+  hemiLight,
+  listener,
+  setAmbienceVolume,
+  playAmbience,
+} from "./scene.js";
 import {
   onPhysicsLoaded,
   createCuboidBody,
@@ -89,6 +96,8 @@ export function openDoor() {
   if (!doorScene.userData.isOpen) {
     collider.userData.sound.setLoop(true);
     collider.userData.sound.play();
+
+    playAmbience();
   }
 
   doorScene.userData.isOpen = true;
@@ -122,4 +131,6 @@ export function update() {
     t * FINAL_DIR_LIGHT_INTENSITY + (1 - t) * initDirLightIntensity;
   hemiLight.intensity =
     t * FINAL_HEMI_LIGHT_INTENSITY + (1 - t) * initHemiLightIntensity;
+
+  setAmbienceVolume(t * 0.7);
 }
