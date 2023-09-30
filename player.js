@@ -87,6 +87,14 @@ export function update(dt) {
       startRisePos = pos.clone();
     }
 
+    const t1 = outroProgress();
+
+    const t = 1 - (1 - t1) * (1 - t1);
+
+    pos.set(0, 0, 0);
+    pos.addScaledVector(startRisePos, 1 - t);
+    pos.addScaledVector(FINAL_POS, t);
+
     if (!playedOutro || !ambienceAudio.isPlaying) {
       return;
     }
@@ -96,13 +104,6 @@ export function update(dt) {
     if (ambienceAudio.getVolume() <= 0) {
       ambienceAudio.stop();
     }
-
-    const t1 = outroProgress();
-
-    const t = 1 - (1 - t1) * (1 - t1);
-
-    pos.addScaledVector(startRisePos, 1 - t);
-    pos.addScaledVector(FINAL_POS, t);
   }
 
   teleportIntersection = null;
