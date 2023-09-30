@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { baseReferenceSpace } from "./renderer.js";
-import { scene, room, ground, playOutro } from "./scene.js";
+import { scene, ground, playOutro } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 import { doorScene as door } from "./door.js";
 import { allBunniesSentToFinalPos } from "./bunnies.js";
@@ -68,9 +68,9 @@ export function init() {
 
 export function update(dt) {
   if (allBunniesSentToFinalPos()) {
-    playOutro();
-
     if (pos.distanceTo(FINAL_POS) > 0.1) {
+      playOutro();
+
       pos.addScaledVector(
         new THREE.Vector3().subVectors(FINAL_POS, pos).normalize(),
         RISE_SPEED * dt
