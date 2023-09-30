@@ -178,7 +178,7 @@ function eatCarrotState(bunny, dt) {
   let shuffledBunnies = [...notFinalPosBunnies];
   shuffleArray(shuffledBunnies);
 
-  shuffledBunnies = shuffledBunnies.slice(0, 29);
+  shuffledBunnies = shuffledBunnies.slice(0, 20);
 
   for (let bunny of shuffledBunnies) {
     bunny.isSentToFinalPos = true;
