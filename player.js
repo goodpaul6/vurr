@@ -1,7 +1,13 @@
 import * as THREE from "three";
 
 import { baseReferenceSpace } from "./renderer.js";
-import { scene, ground, playOutro, isInsideRoom } from "./scene.js";
+import {
+  scene,
+  ground,
+  playOutro,
+  isInsideRoom,
+  ambienceAudio,
+} from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 import { doorScene as door } from "./door.js";
 import { allBunniesSentToFinalPos } from "./bunnies.js";
@@ -81,6 +87,16 @@ export function update(dt) {
         new THREE.Vector3().subVectors(FINAL_POS, pos).normalize(),
         RISE_SPEED * dt
       );
+    }
+
+    if (!playedOutro || !ambienceAudio.isPlaying) {
+      return;
+    }
+
+    ambienceAudio.setVolume(ambienceAudio.getVolume() - dt / 30);
+
+    if (ambienceAudio.getVolume() <= 0) {
+      ambienceAudio.isPlaying = false;
     }
   }
 

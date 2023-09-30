@@ -11,8 +11,7 @@ import {
   dirLight,
   hemiLight,
   listener,
-  setAmbienceVolume,
-  playAmbience,
+  ambienceAudio,
 } from "./scene.js";
 import {
   onPhysicsLoaded,
@@ -97,7 +96,8 @@ export function openDoor() {
     collider.userData.sound.setLoop(true);
     collider.userData.sound.play();
 
-    playAmbience();
+    ambienceAudio.setLoop(true);
+    ambienceAudio.play();
   }
 
   doorScene.userData.isOpen = true;
@@ -132,5 +132,5 @@ export function update() {
   hemiLight.intensity =
     t * FINAL_HEMI_LIGHT_INTENSITY + (1 - t) * initHemiLightIntensity;
 
-  setAmbienceVolume(t * 0.7);
+  ambienceAudio.setVolume(t * 0.7);
 }

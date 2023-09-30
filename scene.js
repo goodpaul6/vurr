@@ -45,7 +45,7 @@ let roomText = null;
 
 const controllerModelFactory = new XRControllerModelFactory();
 
-const ambienceAudio = new THREE.Audio(listener);
+export const ambienceAudio = new THREE.Audio(listener);
 const outroAudio = new THREE.Audio(listener);
 
 export function init() {
@@ -215,21 +215,4 @@ export function playOutro() {
 // NOTE: Only checks X and Z
 export function isInsideRoom(vec3) {
   return Math.abs(vec3.x) <= 4 && Math.abs(vec3.z) <= 3;
-}
-
-export function playAmbience() {
-  if (ambienceAudio.isPlaying) {
-    return;
-  }
-
-  ambienceAudio.setLoop(true);
-  ambienceAudio.play();
-}
-
-export function setAmbienceVolume(volume) {
-  if (!ambienceAudio.isPlaying) {
-    return;
-  }
-
-  ambienceAudio.setVolume(volume);
 }
