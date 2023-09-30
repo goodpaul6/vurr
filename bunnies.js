@@ -598,8 +598,10 @@ export function update(dt) {
     // bunniesIMesh.setColorAt(bunny.index, bunny.color);
 
     if (bunny.carrot) {
-      bunny.carrot.position.set(0.24, 0, -0.08).applyMatrix4(tempMatrix);
-      bunny.carrot.quaternion.copy(bunny.quaternion);
+      bunny.carrot.position.set(0.25, 0, -0.08).applyMatrix4(tempMatrix);
+      bunny.carrot.quaternion
+        .setFromEuler(new THREE.Euler(Math.PI / 2, 0, 0))
+        .multiply(bunny.quaternion);
     }
   }
 
