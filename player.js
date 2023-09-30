@@ -66,11 +66,17 @@ export function init() {
   }
 }
 
+let playedOutro = false;
+
 export function update(dt) {
   if (allBunniesSentToFinalPos()) {
-    if (pos.distanceTo(FINAL_POS) > 0.1) {
+    if (!playedOutro) {
+      // Do not replay outro
       playOutro();
+      playedOutro = true;
+    }
 
+    if (pos.distanceTo(FINAL_POS) > 0.1) {
       pos.addScaledVector(
         new THREE.Vector3().subVectors(FINAL_POS, pos).normalize(),
         RISE_SPEED * dt
