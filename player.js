@@ -1,7 +1,7 @@
 import * as THREE from "three";
 
 import { baseReferenceSpace } from "./renderer.js";
-import { scene, room, ground } from "./scene.js";
+import { scene, room, ground, playOutro } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 import { doorScene as door } from "./door.js";
 import { allBunniesSentToFinalPos } from "./bunnies.js";
@@ -10,6 +10,7 @@ let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
 
 const FINAL_POS = new THREE.Vector3(0, -35, -20);
+const RISE_SPEED = 0.3;
 
 const raycaster = new THREE.Raycaster();
 
@@ -67,10 +68,12 @@ export function init() {
 
 export function update(dt) {
   if (allBunniesSentToFinalPos()) {
+    playOutro();
+
     if (pos.distanceTo(FINAL_POS) > 0.1) {
       pos.addScaledVector(
         new THREE.Vector3().subVectors(FINAL_POS, pos).normalize(),
-        dt
+        RISE_SPEED * dt
       );
     }
   }

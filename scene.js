@@ -8,6 +8,7 @@ import {
   roomGltf,
   skyboxGltf,
   valleyGltf,
+  outroBuffer,
 } from "./models.js";
 import {
   onPhysicsLoaded,
@@ -42,6 +43,8 @@ export let roomBody = null;
 let roomText = null;
 
 const controllerModelFactory = new XRControllerModelFactory();
+
+const outroAudio = new THREE.Audio(listener);
 
 export function init() {
   function onWindowResze() {
@@ -84,6 +87,8 @@ export function init() {
   scene.add(controllerGrip2);
 
   onAllLoaded(function () {
+    outroAudio.setBuffer(outroBuffer);
+
     ground = groundGltf.scene.children[0];
     ground.receiveShadow = true;
 
@@ -193,4 +198,13 @@ export function update(elapsed) {
 
     scene.add(body.obj);
   });
+}
+
+export function playOutro() {
+  if (outroAudio.isPlaying) {
+    return;
+  }
+
+  outroAudio.setLoop(false);
+  outroAudio.play();
 }

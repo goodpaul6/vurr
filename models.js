@@ -24,6 +24,8 @@ export let buttonClickSoundBuffer = null;
 export let doorOpenLoopSoundBuffer = null;
 export let doorOpenClickSoundBuffer = null;
 
+export let outroBuffer = null;
+
 export function init() {
   gltfLoader.load("public/ground.glb", function (gltf) {
     groundGltf = gltf;
@@ -84,6 +86,10 @@ export function init() {
   audioLoader.load("public/door_open_click.ogg", function (buffer) {
     doorOpenClickSoundBuffer = buffer;
   });
+
+  audioLoader.load("public/outro.ogg", function (buffer) {
+    outroBuffer = buffer;
+  });
 }
 
 export function allLoaded() {
@@ -102,7 +108,8 @@ export function allLoaded() {
     valleyGltf &&
     buttonClickSoundBuffer &&
     doorOpenLoopSoundBuffer &&
-    doorOpenClickSoundBuffer
+    doorOpenClickSoundBuffer &&
+    outroBuffer
   );
 }
 
