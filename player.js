@@ -10,11 +10,11 @@ let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
 
 const FINAL_POS = new THREE.Vector3(0, -35, -20);
-const RISE_SPEED = 0.3;
+const RISE_SPEED = 0.4;
 
 const raycaster = new THREE.Raycaster();
 
-const DEBUG_MODE = true;
+const DEBUG_MODE = false;
 
 export const teleportMarker = new THREE.Mesh(
   new THREE.CircleGeometry(0.25, 32).rotateX(-Math.PI / 2),
@@ -96,17 +96,23 @@ export function update(dt) {
     // Apply controller rotation to ray direction (-1 z forward)
     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-    let objectsToIntersect = room.children.filter(function (c) {
-      return c.name.includes("Floor");
-    });
-    if (door.userData.isOpen || DEBUG_MODE) {
-      objectsToIntersect = objectsToIntersect.concat(ground);
-    }
-
-    const intersects = raycaster.intersectObjects(objectsToIntersect);
+    const intersects = raycaster.intersectObjects([ground]);
 
     if (intersects.length > 0) {
       teleportIntersection = intersects[0].point;
+
+      if (!door.userData.isOpen && !DEBUG_MODE) {
+        // If the teleport destination is too close to the edge of the room box, don't let the player teleport there
+        if (
+          Math.abs(teleportIntersection.x) > 4 ||
+          Math.abs(teleportIntersection.z) > 3
+        ) {
+          teleportIntersection = null;
+        } else {
+          // Set the height a little higher so we can see it inside the room
+          teleportIntersection.setY(0.04);
+        }
+      }
     }
 
     break;
