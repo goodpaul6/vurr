@@ -7,6 +7,7 @@ import {
   playOutro,
   isInsideRoom,
   ambienceAudio,
+  outroProgress,
 } from "./scene.js";
 import { controllers, gamepads } from "./input.js";
 import { doorScene as door } from "./door.js";
@@ -16,7 +17,6 @@ let pos = new THREE.Vector3();
 export let orient = new THREE.Quaternion();
 
 const FINAL_POS = new THREE.Vector3(0, -35, -20);
-const RISE_SPEED = 0.4;
 
 const raycaster = new THREE.Raycaster();
 
@@ -73,6 +73,7 @@ export function init() {
 }
 
 let playedOutro = false;
+let startRisePos = null;
 
 export function update(dt) {
   if (allBunniesSentToFinalPos()) {
@@ -82,11 +83,8 @@ export function update(dt) {
       playedOutro = true;
     }
 
-    if (pos.distanceTo(FINAL_POS) > 0.1) {
-      pos.addScaledVector(
-        new THREE.Vector3().subVectors(FINAL_POS, pos).normalize(),
-        RISE_SPEED * dt
-      );
+    if (!startRisePos) {
+      startRisePos = pos.clone();
     }
 
     if (!playedOutro || !ambienceAudio.isPlaying) {
@@ -96,8 +94,15 @@ export function update(dt) {
     ambienceAudio.setVolume(ambienceAudio.getVolume() - dt / 30);
 
     if (ambienceAudio.getVolume() <= 0) {
-      ambienceAudio.isPlaying = false;
+      ambienceAudio.stop();
     }
+
+    const t1 = outroProgress();
+
+    const t = 1 - (1 - t1) * (1 - t1);
+
+    pos.addScaledVector(startRisePos, 1 - t);
+    pos.addScaledVector(FINAL_POS, t);
   }
 
   teleportIntersection = null;

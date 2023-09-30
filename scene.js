@@ -203,6 +203,8 @@ export function update(elapsed) {
   });
 }
 
+let outroStartTime = 0;
+
 export function playOutro() {
   if (outroAudio.isPlaying) {
     return;
@@ -210,6 +212,16 @@ export function playOutro() {
 
   outroAudio.setLoop(false);
   outroAudio.play();
+
+  outroStartTime = outroAudio.context.currentTime;
+}
+
+export function outroProgress() {
+  return Math.min(
+    (outroAudio.context.currentTime - outroStartTime) /
+      outroAudio.buffer.duration,
+    1
+  );
 }
 
 // NOTE: Only checks X and Z
